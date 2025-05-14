@@ -261,6 +261,18 @@ function App() {
     }
   }
 
+  const trace1: any = {
+    x: xValues,
+    y: yValues,
+    z: zValues,
+    type: "scatter3d",
+    mode: "lines",
+    marker: { color: "red" },
+    line: { shape: "spline", width: 2, dash: "solid" }
+  };
+
+  const data = [trace1];
+
   console.log(xValues, yValues, zValues);
   const displayData = (
     <>
@@ -289,6 +301,16 @@ function App() {
             mode: "lines",
             marker: { color: "red" },
             line: { shape: "spline", width: 2, dash: "solid" }
+          },
+          {
+            x: [0],
+            y: [0],
+            z: [0],
+            hoverinfo: "text",
+            text: "Sun",
+            type: "scatter3d",
+            mode: "markers",
+            marker: { color: "yellow", size: 10 }
           }
         ]}
         layout={{ width: 1000, height: 700, title: { text: "A Fancy Plot" } }}
