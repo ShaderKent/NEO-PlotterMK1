@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import Plot from "react-plotly.js";
-import type { PlotData } from "plotly.js";
+// import type { PlotData } from "plotly.js";
 
 // TODO Add Redux to final project
 //  X   Add plotly
@@ -277,9 +277,12 @@ function App() {
   };
 
   //Containers for xyz orbital coordinates
-  let xValues: Array<number> = [];
-  let yValues: Array<number> = [];
-  let zValues: Array<number> = [];
+  let NEOx: Array<number> = [];
+  let NEOy: Array<number> = [];
+  let NEOz: Array<number> = [];
+  let NEOx_today: Array<number> = [];
+  let NEOy_today: Array<number> = [];
+  let NEOz_today: Array<number> = [];
 
   let earthX: Array<number> = [];
   let earthY: Array<number> = [];
@@ -332,7 +335,7 @@ function App() {
 
   //Coordinate Generation
   //Traces
-  XYZFromOrbData(xValues, yValues, zValues, orbitalData);
+  XYZFromOrbData(NEOx, NEOy, NEOz, orbitalData);
   XYZFromOrbData(earthX, earthY, earthZ, earthData);
   //Point Data
   const earthXYZ = XYZForSpecificDate(
@@ -348,6 +351,21 @@ function App() {
     earthX_today[0] = earthXYZ[0];
     earthY_today[0] = earthXYZ[1];
     earthZ_today[0] = earthXYZ[2];
+  }
+
+  const NEOXYZ = XYZForSpecificDate(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+    0,
+    0,
+    0,
+    orbitalData
+  );
+  if (NEOXYZ) {
+    NEOx_today[0] = NEOXYZ[0];
+    NEOy_today[0] = NEOXYZ[1];
+    NEOz_today[0] = NEOXYZ[2];
   }
 
   //Vestigial Currently
@@ -369,14 +387,24 @@ function App() {
       <Plot
         data={[
           {
-            x: xValues,
-            y: yValues,
-            z: zValues,
+            x: NEOx,
+            y: NEOy,
+            z: NEOz,
             type: "scatter3d",
             mode: "lines",
             marker: { color: "red" },
             line: { shape: "spline", width: 2, dash: "solid" },
             zmax: 1
+          },
+          {
+            x: NEOx_today,
+            y: NEOy_today,
+            z: NEOz_today,
+            hoverinfo: "text",
+            text: "NEO",
+            type: "scatter3d",
+            mode: "markers",
+            marker: { color: "red", size: 3 }
           },
           {
             x: earthX,
@@ -395,7 +423,7 @@ function App() {
             text: "Earth",
             type: "scatter3d",
             mode: "markers",
-            marker: { color: "green", size: 4 }
+            marker: { color: "green", size: 5 }
           },
           {
             x: [0],
@@ -405,7 +433,7 @@ function App() {
             text: "Sun",
             type: "scatter3d",
             mode: "markers",
-            marker: { color: "yellow", size: 10 }
+            marker: { color: "yellow", size: 12 }
           }
         ]}
         layout={{
