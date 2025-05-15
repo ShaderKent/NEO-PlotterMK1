@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import Plot from "react-plotly.js";
+import type { PlotData } from "plotly.js";
 // import type { PlotData } from "plotly.js";
 
 // TODO Add Redux to final project
@@ -381,61 +382,73 @@ function App() {
     </>
   );
 
+  const NEOtrace = {
+    x: NEOx,
+    y: NEOy,
+    z: NEOz,
+    type: "scatter3d",
+    mode: "lines",
+    marker: { color: "red" },
+    line: { shape: "spline", width: 2, dash: "solid" },
+    zmax: 1
+  };
+
+  const NEOMarker = {
+    x: NEOx_today,
+    y: NEOy_today,
+    z: NEOz_today,
+    hoverinfo: "text",
+    text: "NEO",
+    type: "scatter3d",
+    mode: "markers",
+    marker: { color: "red", size: 3 }
+  };
+
+  const earthTrace = {
+    x: earthX,
+    y: earthY,
+    z: earthZ,
+    type: "scatter3d",
+    mode: "lines",
+    marker: { color: "green" },
+    line: { shape: "spline", width: 2, dash: "solid" }
+  };
+
+  const earthMarker = {
+    x: earthX_today,
+    y: earthY_today,
+    z: earthZ_today,
+    hoverinfo: "text",
+    text: "Earth",
+    type: "scatter3d",
+    mode: "markers",
+    marker: { color: "green", size: 5 }
+  };
+
+  const sunMarker = {
+    x: [0],
+    y: [0],
+    z: [0],
+    hoverinfo: "text",
+    text: "Sun",
+    type: "scatter3d",
+    mode: "markers",
+    marker: { color: "yellow", size: 12 }
+  };
+
+  const traceArr: Array<object> = [
+    NEOtrace,
+    NEOMarker,
+    earthTrace,
+    earthMarker,
+    sunMarker
+  ];
+
   return (
     <>
       <div id="test"></div>
       <Plot
-        data={[
-          {
-            x: NEOx,
-            y: NEOy,
-            z: NEOz,
-            type: "scatter3d",
-            mode: "lines",
-            marker: { color: "red" },
-            line: { shape: "spline", width: 2, dash: "solid" },
-            zmax: 1
-          },
-          {
-            x: NEOx_today,
-            y: NEOy_today,
-            z: NEOz_today,
-            hoverinfo: "text",
-            text: "NEO",
-            type: "scatter3d",
-            mode: "markers",
-            marker: { color: "red", size: 3 }
-          },
-          {
-            x: earthX,
-            y: earthY,
-            z: earthZ,
-            type: "scatter3d",
-            mode: "lines",
-            marker: { color: "green" },
-            line: { shape: "spline", width: 2, dash: "solid" }
-          },
-          {
-            x: earthX_today,
-            y: earthY_today,
-            z: earthZ_today,
-            hoverinfo: "text",
-            text: "Earth",
-            type: "scatter3d",
-            mode: "markers",
-            marker: { color: "green", size: 5 }
-          },
-          {
-            x: [0],
-            y: [0],
-            z: [0],
-            hoverinfo: "text",
-            text: "Sun",
-            type: "scatter3d",
-            mode: "markers",
-            marker: { color: "yellow", size: 12 }
-          }
-        ]}
+        data={[...traceArr]}
         layout={{
           width: 1000,
           height: 700,
