@@ -105,6 +105,7 @@ interface Orbital_Data {
   v?: number; //True anomaly (DERIVED) => actual angle between the orbiting body and periapsis
   a?: number; //Mean distance (DERIVED) => also known as the Semi-Major Axis
   r?: number; //Heliocenteric Distance (DERIVED) => Body's distance ot the sun
+  orbit?: Array<Array<number>>; //Calculated orbital trace data for this object
 }
 
 function App() {
@@ -293,12 +294,10 @@ function App() {
   let earthZ_today: Array<number> = [];
 
   //Coordinate Generation Functions
-  const XYZFromOrbData = (
-    x: Array<number>,
-    y: Array<number>,
-    z: Array<number>,
-    orbDat?: Orbital_Data
-  ) => {
+  const XYZFromOrbData = (orbDat?: Orbital_Data) => {
+    let tempX = [];
+    let tempY = [];
+    let tempZ = [];
     if (orbDat) {
       for (let i = 0; i < 200; i += 0.01) {
         const Tx = getAdjustedT("day", i, orbDat.date);
@@ -308,11 +307,12 @@ function App() {
         const r = calcHelioDist(a, v, orbDat);
         const coordinatePoint = calcXYZ(r, v, orbDat);
         if (coordinatePoint) {
-          x.push(Number(coordinatePoint[0].toFixed(10)));
-          y.push(Number(coordinatePoint[1].toFixed(10)));
-          z.push(Number(coordinatePoint[2].toFixed(10)));
+          tempX.push(Number(coordinatePoint[0].toFixed(10)));
+          tempY.push(Number(coordinatePoint[1].toFixed(10)));
+          tempZ.push(Number(coordinatePoint[2].toFixed(10)));
         }
       }
+      return [tempX, tempY, tempZ];
     }
   };
 
@@ -336,8 +336,14 @@ function App() {
 
   //Coordinate Generation
   //Traces
-  XYZFromOrbData(NEOx, NEOy, NEOz, orbitalData);
-  XYZFromOrbData(earthX, earthY, earthZ, earthData);
+  let NEOorb = XYZFromOrbData(orbitalData);
+  if (!NEOorb) {
+    NEOorb = [[0], [0], [0]];
+  }
+  let earthOrb = XYZFromOrbData(earthData);
+  if (!earthOrb) {
+    earthOrb = [[0], [0], [0]];
+  }
   //Point Data
   const earthXYZ = XYZForSpecificDate(
     today.getFullYear(),
@@ -383,9 +389,9 @@ function App() {
   );
 
   const NEOtrace = {
-    x: NEOx,
-    y: NEOy,
-    z: NEOz,
+    x: NEOorb[0],
+    y: NEOorb[1],
+    z: NEOorb[2],
     type: "scatter3d",
     mode: "lines",
     marker: { color: "red" },
@@ -405,9 +411,9 @@ function App() {
   };
 
   const earthTrace = {
-    x: earthX,
-    y: earthY,
-    z: earthZ,
+    x: earthOrb[0],
+    y: earthOrb[1],
+    z: earthOrb[2],
     type: "scatter3d",
     mode: "lines",
     marker: { color: "green" },
