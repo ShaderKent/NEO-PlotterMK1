@@ -1,7 +1,7 @@
 import { useEffect, useState, type JSX } from "react";
 import "./App.css";
 import Plot from "react-plotly.js";
-// import type { PlotData } from "plotly.js";
+import type { Orbital_Data, OrbitingBody } from "./types";
 
 // TODO Add Redux to final project
 //  X   Add plotly
@@ -19,39 +19,21 @@ import Plot from "react-plotly.js";
 // NASA API Key: YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj
 // https://api.nasa.gov/neo/rest/v1/feed?start_date=2015-09-07&end_date=2015-09-08&api_key=DEMO_KEY
 
-interface Orbital_Data {
-  date: string; //Date of data collection => used to calculate future values relative to a constant t (J2000)
-  M: number; //Mean Anomaly => How far around the orbit the object currently is in degrees. 0 at perihelion, 180 at aphelion
-  e: number; //Eccentricity => How 'pointy' the orbit is: 0 = circular, < 1 = Elliptical, > 1 == Parabolic, > 1 = Hyperbolic
-  q: number; //Perihelion distance => Distance in A.U. from the sun at closest part of orbit
-  o: number; //'Omega'(Capital) or ascending node longitude => Angle at the point where the orbit ascending passes through the horizontal plane of the earth and sun, in deg (counterclockwise)
-  i: number; //Inclination => // angle (deg) between the plane of the orbit and the reference plane > 0-90deg normal direction orbit > 90-180deg retrograde orbits
-  p: number; //'omega'(lowecase) or perihelion argument => The angle between the ascending node and the periapsis (lowest point of orbit)
-  v?: number; //True anomaly (DERIVED) => actual angle between the orbiting body and periapsis
-  a?: number; //Mean distance (DERIVED) => also known as the Semi-Major Axis
-  r?: number; //Heliocenteric Distance (DERIVED) => Body's distance ot the sun
-  orbit?: OrbitXYZ;
-}
-interface OrbitXYZ {
-  x: Array<number>;
-  y: Array<number>;
-  z: Array<number>;
-}
-interface userProps {
+interface Props {
   isLoaded: Boolean;
-  setOrbitData: Function;
+  setOrbitingBody: Function;
   setEarthOrbitData: Function;
   earthOrbitData: Orbital_Data;
-  orbitData: Orbital_Data | undefined;
+  orbitingBody: OrbitingBody | undefined;
 }
 
 function OrbitPlot({
   isLoaded,
-  setOrbitData,
+  setOrbitingBody,
   setEarthOrbitData,
   earthOrbitData,
-  orbitData
-}: userProps) {
+  orbitingBody
+}: Props) {
   // Constants
   const t = 946728000000; //Time in milliseconds after J2000 => used for calculating positions relative to this 'epoch'
   const today = new Date();
@@ -232,12 +214,15 @@ function OrbitPlot({
   useEffect(() => {
     console.log("first useEffect");
     if (isLoaded) {
-      const orbitTraceData = XYZFromOrbData(orbitData);
+      const orbitTraceData = XYZFromOrbData(orbitingBody?.orbitalData);
       const earthTraceData = XYZFromOrbData(earthOrbitData);
-      if (orbitData) {
-        setOrbitData({
-          ...orbitData,
-          orbit: orbitTraceData
+      if (orbitingBody?.orbitalData) {
+        setOrbitingBody({
+          ...orbitingBody,
+          orbitalData: {
+            ...orbitingBody.orbitalData,
+            orbit: orbitTraceData
+          }
         });
       }
       if (earthOrbitData) {
@@ -257,7 +242,7 @@ function OrbitPlot({
     0,
     0,
     0,
-    orbitData
+    orbitingBody?.orbitalData
   );
   if (NEOXYZ) {
     NEOx_today[0] = NEOXYZ[0];
@@ -293,9 +278,9 @@ function OrbitPlot({
   //   );
 
   const NEOtrace = {
-    x: orbitData?.orbit?.x,
-    y: orbitData?.orbit?.y,
-    z: orbitData?.orbit?.z,
+    x: orbitingBody?.orbitalData?.orbit?.x,
+    y: orbitingBody?.orbitalData.orbit?.y,
+    z: orbitingBody?.orbitalData.orbit?.z,
     type: "scatter3d",
     mode: "lines",
     marker: { color: "red" },
