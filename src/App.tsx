@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import Plot from "react-plotly.js";
-import type { PlotData } from "plotly.js";
 // import type { PlotData } from "plotly.js";
 
 // TODO Add Redux to final project
@@ -12,8 +11,10 @@ import type { PlotData } from "plotly.js";
 //  X   Graph that data
 //      Make basic UI
 //      Confirm Accuracy of Earth's Data
-//      Add plot for orbital body
+//  X   Add plot for orbital body
 //      cycle through different api objects
+//      Add point arrays to state?
+//      Dynamic grid axis size
 
 // NASA API Key: YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj
 // https://api.nasa.gov/neo/rest/v1/feed?start_date=2015-09-07&end_date=2015-09-08&api_key=DEMO_KEY
@@ -94,6 +95,11 @@ interface Close_Approach_Data {
     miles_per_hour: string;
   };
 }
+interface OrbitXYZ {
+  x: Array<number>;
+  y: Array<number>;
+  z: Array<number>;
+}
 interface Orbital_Data {
   date: string; //Date of data collection => used to calculate future values relative to a constant t (J2000)
   M: number; //Mean Anomaly => How far around the orbit the object currently is in degrees. 0 at perihelion, 180 at aphelion
@@ -105,7 +111,7 @@ interface Orbital_Data {
   v?: number; //True anomaly (DERIVED) => actual angle between the orbiting body and periapsis
   a?: number; //Mean distance (DERIVED) => also known as the Semi-Major Axis
   r?: number; //Heliocenteric Distance (DERIVED) => Body's distance ot the sun
-  orbit?: Array<Array<number>>; //Calculated orbital trace data for this object
+  orbit?: OrbitXYZ;
 }
 
 function App() {
@@ -113,45 +119,53 @@ function App() {
   const t = 946728000000; //Time in milliseconds after J2000 => used for calculating positions relative to this 'epoch'
   const today = new Date();
 
-  // State management
-  const [NEO_Data, setNEO_Data] = useState<NEO_JSON_Object>(); //Container for main API response data
-  const [orbitalData, setOrbitalData] = useState<Orbital_Data>(); //Sub container for orbital data for ease of use
-
-  const earthData: Orbital_Data = {
+  const earthStaticData: Orbital_Data = {
     date: "2023-05-14 12:00:00",
     M: 100.46435,
     e: 0.01671022,
     q: 0.98329,
-    o: 11.26064, //174.9, //11.26064,    //Example: "195.6453414534589",
-    i: 0.0157, //1.57869,
-    p: 102.94719 //288.1 //102.94719
+    o: 11.26064,
+    i: 0.0157,
+    p: 102.94719
   };
 
-  //API Request from NASA NEO database
-  useEffect(() => {
-    const url =
-      "https://api.nasa.gov/neo/rest/v1/neo/3542519?api_key=YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj";
-    fetch(url)
-      .then((res) => res.json())
-      .then((json) => {
-        setNEO_Data(json);
-        handleSetOrbitalData(json.orbital_data);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
+  // State management
+  const [isLoaded, setIsLoaded] = useState<Boolean>(false);
+  //   const [NEO_Data, setNEO_Data] = useState<NEO_JSON_Object>(); //Container for main API response data
+  const [orbitalData, setOrbitalData] = useState<Orbital_Data>(); //Sub container for orbital data for ease of use
+  const [earthData, setEarthData] = useState<Orbital_Data>(earthStaticData);
 
-  const handleSetOrbitalData = (data: any) => {
+  //API call
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch(
+          "https://api.nasa.gov/neo/rest/v1/neo/3542517?api_key=YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj"
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const json = await response.json();
+        handleSetOrbitalData(json.orbital_data);
+      } catch (e) {
+        console.log("error");
+      } finally {
+        setIsLoaded(true); //Triggers render
+      }
+    }
+    fetchData();
+  }, []); //Runs once on refresh
+
+  const handleSetOrbitalData = (data: NEO_JSON_Object["orbital_data"]) => {
     //Splits relevant off of the main JSON object for calculating orbits
     setOrbitalData({
-      date: data.orbit_determination_date,
-      M: data.mean_anomaly,
-      e: data.eccentricity,
-      q: data.perihelion_distance,
-      o: data.ascending_node_longitude,
-      i: data.inclination,
-      p: data.perihelion_argument
+      date: data.orbit_determination_date ?? "",
+      M: Number(data.mean_anomaly),
+      e: Number(data.eccentricity),
+      q: Number(data.perihelion_distance),
+      o: Number(data.ascending_node_longitude),
+      i: Number(data.inclination),
+      p: Number(data.perihelion_argument)
     });
   };
 
@@ -159,50 +173,51 @@ function App() {
   const getAdjustedT = (
     value: string | null,
     change: number,
-    dateString: string
+    dateString?: string
   ) => {
-    //Used to calculate the adjusted time (Tx) for each point x along an orbit
-    // Takes the orbit determination date splits it into years, months, days, hours, minutes, and seconds
-    const year = dateString.substring(0, 4);
-    const month = dateString.substring(5, 7);
-    const day = dateString.substring(8, 10);
-    const hour = dateString.substring(11, 13);
-    const minute = dateString.substring(14, 16);
-    const second = dateString.substring(17, 19);
+    if (dateString) {
+      //Used to calculate the adjusted time (Tx) for each point x along an orbit
+      // Takes the orbit determination date splits it into years, months, days, hours, minutes, and seconds
+      const year = dateString.substring(0, 4);
+      const month = dateString.substring(5, 7);
+      const day = dateString.substring(8, 10);
+      const hour = dateString.substring(11, 13);
+      const minute = dateString.substring(14, 16);
+      const second = dateString.substring(17, 19);
 
-    //Gets the UTC of that date in milliseconds
-    const T0 = Date.UTC(
-      Number(year),
-      Number(month),
-      Number(day),
-      Number(hour),
-      Number(minute),
-      Number(second)
-    );
+      //Gets the UTC of that date in milliseconds
+      const T0 = Date.UTC(
+        Number(year),
+        Number(month),
+        Number(day),
+        Number(hour),
+        Number(minute),
+        Number(second)
+      );
 
-    // Depending on the value passed in, adjusts the date in milliseconds accordingly
-    // Finally, subtracts t => epoch constant (milliseconds since Jan 2000)
-    switch (value) {
-      case "year":
-        return T0 + change * (1000 * 60 * 60 * 24 * 365.5) - t;
-        break;
-      case "day":
-        return T0 + change * (1000 * 60 * 60 * 24) - t;
-        break;
-      case "hour":
-        return T0 + change * (1000 * 60 * 60) - t;
-        break;
-      case "minute":
-        return T0 + change * (1000 * 60) - t;
-        break;
-      case "second":
-        return T0 + change * 1000 - t;
-        break;
-      default:
-        return T0 - t;
+      // Depending on the value passed in, adjusts the date in milliseconds accordingly
+      // Finally, subtracts t => epoch constant (milliseconds since Jan 2000)
+      switch (value) {
+        case "year":
+          return T0 + change * (1000 * 60 * 60 * 24 * 365.5) - t;
+          break;
+        case "day":
+          return T0 + change * (1000 * 60 * 60 * 24) - t;
+          break;
+        case "hour":
+          return T0 + change * (1000 * 60 * 60) - t;
+          break;
+        case "minute":
+          return T0 + change * (1000 * 60) - t;
+          break;
+        case "second":
+          return T0 + change * 1000 - t;
+          break;
+        default:
+          return T0 - t;
+      }
     }
   };
-
   const getAdjustedUTCForDate = (
     //Works with XYZForSpecificDate() to request point data (rather than traces)
     //Optional hour, minute, and seconds, but likely best to use 0,0,0 if unused
@@ -219,7 +234,6 @@ function App() {
       return Date.UTC(year, month, day) - t;
     }
   };
-
   const calcAdjMeanAnomaly = (T: number | undefined, orbDat?: Orbital_Data) => {
     if (T && orbDat) {
       const Mx = Number(orbDat.M) + 360 * (t / T); //t is in milliseconds currently
@@ -254,9 +268,8 @@ function App() {
       return r; //Value is in A.U.
     }
   };
-
-  //Calculates the rectangular coordinates from angular coordinates
   const calcXYZ = (
+    //Calculates the rectangular coordinates from angular coordinates
     r: number | undefined,
     v: number | undefined,
     orbDat?: Orbital_Data
@@ -278,28 +291,21 @@ function App() {
     }
   };
 
-  //Containers for xyz orbital coordinates
-  let NEOx: Array<number> = [];
-  let NEOy: Array<number> = [];
-  let NEOz: Array<number> = [];
+  //Containers for xyz point orbital coordinates
   let NEOx_today: Array<number> = [];
   let NEOy_today: Array<number> = [];
   let NEOz_today: Array<number> = [];
-
-  let earthX: Array<number> = [];
-  let earthY: Array<number> = [];
-  let earthZ: Array<number> = [];
   let earthX_today: Array<number> = [];
   let earthY_today: Array<number> = [];
   let earthZ_today: Array<number> = [];
 
   //Coordinate Generation Functions
   const XYZFromOrbData = (orbDat?: Orbital_Data) => {
-    let tempX = [];
-    let tempY = [];
-    let tempZ = [];
     if (orbDat) {
-      for (let i = 0; i < 200; i += 0.01) {
+      let x = [];
+      let y = [];
+      let z = [];
+      for (let i = 0; i < 110; i += 0.01) {
         const Tx = getAdjustedT("day", i, orbDat.date);
         const Mx = calcAdjMeanAnomaly(Tx, orbDat);
         const v = calcTrueAnomaly(Mx, orbDat);
@@ -307,12 +313,12 @@ function App() {
         const r = calcHelioDist(a, v, orbDat);
         const coordinatePoint = calcXYZ(r, v, orbDat);
         if (coordinatePoint) {
-          tempX.push(Number(coordinatePoint[0].toFixed(10)));
-          tempY.push(Number(coordinatePoint[1].toFixed(10)));
-          tempZ.push(Number(coordinatePoint[2].toFixed(10)));
+          x.push(Number(coordinatePoint[0].toFixed(10)));
+          y.push(Number(coordinatePoint[1].toFixed(10)));
+          z.push(Number(coordinatePoint[2].toFixed(10)));
         }
       }
-      return [tempX, tempY, tempZ];
+      return { x: x, y: y, z: z };
     }
   };
 
@@ -334,32 +340,29 @@ function App() {
     return coordinatePoint;
   };
 
-  //Coordinate Generation
-  //Traces
-  let NEOorb = XYZFromOrbData(orbitalData);
-  if (!NEOorb) {
-    NEOorb = [[0], [0], [0]];
-  }
-  let earthOrb = XYZFromOrbData(earthData);
-  if (!earthOrb) {
-    earthOrb = [[0], [0], [0]];
-  }
-  //Point Data
-  const earthXYZ = XYZForSpecificDate(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
-    0,
-    0,
-    0,
-    earthData
-  );
-  if (earthXYZ) {
-    earthX_today[0] = earthXYZ[0];
-    earthY_today[0] = earthXYZ[1];
-    earthZ_today[0] = earthXYZ[2];
-  }
+  //   Coordinate Generation
+  //   Traces
+  useEffect(() => {
+    console.log("first useEffect");
+    if (isLoaded) {
+      const orbitTraceData = XYZFromOrbData(orbitalData);
+      const earthTraceData = XYZFromOrbData(earthData);
+      if (orbitalData) {
+        setOrbitalData({
+          ...orbitalData,
+          orbit: orbitTraceData
+        });
+      }
+      if (earthData) {
+        setEarthData({
+          ...earthData,
+          orbit: earthTraceData
+        });
+      }
+    }
+  }, [isLoaded]); //Dependent on API response
 
+  //Point Coordinates
   const NEOXYZ = XYZForSpecificDate(
     today.getFullYear(),
     today.getMonth(),
@@ -375,28 +378,42 @@ function App() {
     NEOz_today[0] = NEOXYZ[2];
   }
 
-  //Vestigial Currently
-  const displayData = (
-    <>
-      <p>{NEO_Data?.id}</p>
-      <p>{NEO_Data?.name}</p>
-      <p>{NEO_Data?.designation}</p>
-      <p>{NEO_Data?.is_potentially_hazardous_asteroid}</p>
-      <p>{NEO_Data?.close_approach_data[0].close_approach_date}</p>
-      <p>{NEO_Data?.orbital_data.aphelion_distance}</p>
-      <p></p>
-    </>
+  const earthXYZ = XYZForSpecificDate(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+    0,
+    0,
+    0,
+    earthData
   );
+  if (earthXYZ) {
+    earthX_today[0] = earthXYZ[0];
+    earthY_today[0] = earthXYZ[1];
+    earthZ_today[0] = earthXYZ[2];
+  }
+
+  //Vestigial Currently
+  //   const displayData = (
+  //     <>
+  //       <p>{NEO_Data?.id}</p>
+  //       <p>{NEO_Data?.name}</p>
+  //       <p>{NEO_Data?.designation}</p>
+  //       <p>{NEO_Data?.is_potentially_hazardous_asteroid}</p>
+  //       <p>{NEO_Data?.close_approach_data[0].close_approach_date}</p>
+  //       <p>{NEO_Data?.orbital_data.aphelion_distance}</p>
+  //       <p></p>
+  //     </>
+  //   );
 
   const NEOtrace = {
-    x: NEOorb[0],
-    y: NEOorb[1],
-    z: NEOorb[2],
+    x: orbitalData?.orbit?.x,
+    y: orbitalData?.orbit?.y,
+    z: orbitalData?.orbit?.z,
     type: "scatter3d",
     mode: "lines",
     marker: { color: "red" },
-    line: { shape: "spline", width: 2, dash: "solid" },
-    zmax: 1
+    line: { shape: "spline", width: 2, dash: "solid" }
   };
 
   const NEOMarker = {
@@ -411,9 +428,9 @@ function App() {
   };
 
   const earthTrace = {
-    x: earthOrb[0],
-    y: earthOrb[1],
-    z: earthOrb[2],
+    x: earthData?.orbit?.x,
+    y: earthData?.orbit?.y,
+    z: earthData?.orbit?.z,
     type: "scatter3d",
     mode: "lines",
     marker: { color: "green" },
@@ -452,28 +469,39 @@ function App() {
 
   return (
     <>
-      <div id="test"></div>
-      <Plot
-        data={[...traceArr]}
-        layout={{
-          width: 1000,
-          height: 700,
-          title: { text: "A Fancy Plot" },
-          yaxis: {
-            tickmode: "linear",
-            ticks: "outside",
-            tick0: 0,
-            dtick: 0.25,
-            ticklen: 8,
-            tickwidth: 4
-          },
-          scene: {
-            zaxis: {
-              range: [-0.5, 0.5]
-            }
-          }
-        }}
-      />
+      {isLoaded ? null : <p>Loading...</p>}
+      {isLoaded ? (
+        <div id="test">
+          <Plot
+            data={traceArr}
+            layout={{
+              width: 1000,
+              height: 700,
+              title: { text: "A Fancy Plot" },
+              yaxis: {
+                tickmode: "linear",
+                ticks: "outside",
+                tick0: 0,
+                dtick: 0.25,
+                ticklen: 8,
+                tickwidth: 4
+              },
+              scene: {
+                xaxis: {
+                  range: [-2.5, 2.5]
+                },
+                yaxis: {
+                  range: [-2.5, 2.5]
+                },
+                zaxis: {
+                  range: [-1, 1]
+                }
+              }
+            }}
+            config={{ scrollZoom: true }}
+          />
+        </div>
+      ) : null}
     </>
   );
 }
@@ -484,7 +512,6 @@ export default App;
 //            NOTES USED TO FIGURE OUT THESE CALCS            //
 //                                                            //
 //============================================================//
-
 /*TEMPORARY INTERFACE => ADDED NOTES I FOUND HELPFUL
 // interface Orbital_Data {
 //   type: string; // ecc == 0 => Circular, ecc < 1 => Elliptic, ecc == 1 => "Parabolic"m, ecc > 1 "hyperbolic"
