@@ -80,6 +80,23 @@ export interface OrbitXYZ {
     y: Array<number>;
     z: Array<number>;
   }
+export interface OrbitingBody {
+    id: Number;
+    name: String;
+    OrbitingBody: String;
+    hazard: Boolean;
+    orbitalPeriod: Number; //days
+    closeApproachDistance: Number; //km
+    closeApproachRelSpeed: Number; //km/s
+    closeApproachDate: String;
+    closeApproachEpochDate: Number;
+    EstDiameterMin: Number; //meters
+    EstDiameterMax: Number; //meters
+    firstObservation: String;
+    lastObservation: String;
+    orbitalData: Orbital_Data; 
+}  
+
 export interface Orbital_Data {
     date: string; //Date of data collection => used to calculate future values relative to a constant t (J2000)
     M: number; //Mean Anomaly => How far around the orbit the object currently is in degrees. 0 at perihelion, 180 at aphelion
