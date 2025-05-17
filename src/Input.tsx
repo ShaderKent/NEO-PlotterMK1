@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ChangeEvent, MouseEvent } from "react";
+
 import type { OrbitingBody } from "./types";
 
 interface Props {

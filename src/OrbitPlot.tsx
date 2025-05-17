@@ -244,20 +244,23 @@ function OrbitPlot({
     }
   }, []);
   // Point Coordinates
-  // const NEOXYZ = XYZForSpecificDate(
-  //   today.getFullYear(),
-  //   today.getMonth(),
-  //   today.getDate(),
-  //   0,
-  //   0,
-  //   0,
-  //   orbitingBodyArr[0].orbitalData
-  // );
-  // if (NEOXYZ) {
-  //   NEOx_today[0] = NEOXYZ[0];
-  //   NEOy_today[0] = NEOXYZ[1];
-  //   NEOz_today[0] = NEOXYZ[2];
-  // }
+  if (isLoaded1) {
+    const NEOXYZ = XYZForSpecificDate(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      0,
+      0,
+      0,
+      orbitingBodyArr[1].orbitalData
+    );
+    if (NEOXYZ) {
+      NEOx_today[0] = NEOXYZ[0];
+      NEOy_today[0] = NEOXYZ[1];
+      NEOz_today[0] = NEOXYZ[2];
+    }
+  }
+
   const earthXYZ = XYZForSpecificDate(
     today.getFullYear(),
     today.getMonth(),
@@ -340,7 +343,7 @@ function OrbitPlot({
 
   const traceArr: Array<object> = [
     NEOtrace,
-    // NEOMarker,
+    NEOMarker,
     earthTrace,
     earthMarker,
     sunMarker

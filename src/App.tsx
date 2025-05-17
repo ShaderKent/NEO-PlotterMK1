@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 
 import type { NEO_JSON_Object, Orbital_Data, OrbitingBody } from "./types";
 import Input from "./Input";
+import Datepicker from "react-tailwindcss-datepicker";
+
+// interface dateVT{
+//   startDate: DateValueType;
+//   endDate: DateValueType;
+// }
 
 function App() {
   const earthStaticData: Orbital_Data = {
@@ -25,6 +31,12 @@ function App() {
   const [API_ID, setAPI_ID] = useState<Number>(3542517);
   const [earthData, setEarthData] = useState<Orbital_Data>(earthStaticData);
   const [orbitingBodyArr, setOrbitingBodyArr] = useState<OrbitingBody[]>([]); //An array of 5 orbiting bodies
+
+  //Datepicker stuff (TEMP)
+  const [value, setValue] = useState<any>({
+    startDate: null,
+    endDate: null
+  });
 
   //API call
   //`https://api.nasa.gov/neo/rest/v1/feed?start_date=${START_DATE}&end_date=${END_DATE}&api_key=YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj`
@@ -176,6 +188,9 @@ function App() {
 
   return (
     <>
+      <div style={{ width: 1000 }}>
+        <Datepicker value={value} onChange={(newValue) => setValue(newValue)} />
+      </div>
       <Input setAPI={setAPI_ID} orbitingBodyArr={orbitingBodyArr} />
       <OrbitPlot
         isLoaded1={isLoaded1}
