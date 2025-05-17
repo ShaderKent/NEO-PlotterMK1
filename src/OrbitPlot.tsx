@@ -20,19 +20,25 @@ import type { Orbital_Data, OrbitingBody } from "./types";
 // https://api.nasa.gov/neo/rest/v1/feed?start_date=2015-09-07&end_date=2015-09-08&api_key=DEMO_KEY
 
 interface Props {
-  isLoaded: Boolean;
-  setOrbitingBody: Function;
+  isLoaded1: Boolean;
+  setIsLoaded1: Function;
+  isLoaded2: Boolean;
+  setIsLoaded2: Function;
+  setOrbitingBodyArr: Function;
   setEarthOrbitData: Function;
   earthOrbitData: Orbital_Data;
-  orbitingBody: OrbitingBody | undefined;
+  orbitingBodyArr: OrbitingBody[];
 }
 
 function OrbitPlot({
-  isLoaded,
-  setOrbitingBody,
+  isLoaded1,
+  setIsLoaded1,
+  isLoaded2,
+  setIsLoaded2,
+  setOrbitingBodyArr,
   setEarthOrbitData,
   earthOrbitData,
-  orbitingBody
+  orbitingBodyArr
 }: Props) {
   // Constants
   const t = 946728000000; //Time in milliseconds after J2000 => used for calculating positions relative to this 'epoch'
@@ -212,43 +218,46 @@ function OrbitPlot({
   //   Coordinate Generation
   //   Traces
   useEffect(() => {
-    console.log("first useEffect");
-    if (isLoaded) {
-      const orbitTraceData = XYZFromOrbData(orbitingBody?.orbitalData);
-      const earthTraceData = XYZFromOrbData(earthOrbitData);
-      if (orbitingBody?.orbitalData) {
-        setOrbitingBody({
-          ...orbitingBody,
-          orbitalData: {
-            ...orbitingBody.orbitalData,
-            orbit: orbitTraceData
-          }
-        });
-      }
-      if (earthOrbitData) {
-        setEarthOrbitData({
-          ...earthOrbitData,
-          orbit: earthTraceData
-        });
-      }
-    }
-  }, [isLoaded]); //Dependent on API response
+    console.log("Trace Generating useEffect triggered: Top");
+    //If API requests have resolved: calculate trace data and immutably update the OrbitingBody.orbit data.
+    if (isLoaded1) {
+      console.log("Trace Generating useEffect triggered: isLoaded1 loop");
+      let copyOrbBodyArr = orbitingBodyArr?.slice();
+      copyOrbBodyArr?.forEach((body) => {
+        body.orbitalData.orbit = XYZFromOrbData(body?.orbitalData);
+      });
+      setOrbitingBodyArr(copyOrbBodyArr);
 
-  //Point Coordinates
-  const NEOXYZ = XYZForSpecificDate(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
-    0,
-    0,
-    0,
-    orbitingBody?.orbitalData
-  );
-  if (NEOXYZ) {
-    NEOx_today[0] = NEOXYZ[0];
-    NEOy_today[0] = NEOXYZ[1];
-    NEOz_today[0] = NEOXYZ[2];
-  }
+      //Update conditional rendering of the Plot
+      setIsLoaded2(true);
+    }
+  }, [isLoaded1]); //Dependent on API response completion
+
+  //Calculation / handling of Earth's orbit trace -> handled separately due to static values
+  useEffect(() => {
+    const earthTraceData = XYZFromOrbData(earthOrbitData);
+    if (earthOrbitData) {
+      setEarthOrbitData({
+        ...earthOrbitData,
+        orbit: earthTraceData
+      });
+    }
+  }, []);
+  // Point Coordinates
+  // const NEOXYZ = XYZForSpecificDate(
+  //   today.getFullYear(),
+  //   today.getMonth(),
+  //   today.getDate(),
+  //   0,
+  //   0,
+  //   0,
+  //   orbitingBodyArr[0].orbitalData
+  // );
+  // if (NEOXYZ) {
+  //   NEOx_today[0] = NEOXYZ[0];
+  //   NEOy_today[0] = NEOXYZ[1];
+  //   NEOz_today[0] = NEOXYZ[2];
+  // }
   const earthXYZ = XYZForSpecificDate(
     today.getFullYear(),
     today.getMonth(),
@@ -276,11 +285,10 @@ function OrbitPlot({
   //       <p></p>
   //     </>
   //   );
-
   const NEOtrace = {
-    x: orbitingBody?.orbitalData?.orbit?.x,
-    y: orbitingBody?.orbitalData.orbit?.y,
-    z: orbitingBody?.orbitalData.orbit?.z,
+    x: orbitingBodyArr[1]?.orbitalData.orbit?.x,
+    y: orbitingBodyArr[1]?.orbitalData.orbit?.y,
+    z: orbitingBodyArr[1]?.orbitalData.orbit?.z,
     type: "scatter3d",
     mode: "lines",
     marker: { color: "red" },
@@ -332,7 +340,7 @@ function OrbitPlot({
 
   const traceArr: Array<object> = [
     NEOtrace,
-    NEOMarker,
+    // NEOMarker,
     earthTrace,
     earthMarker,
     sunMarker
@@ -340,8 +348,8 @@ function OrbitPlot({
 
   return (
     <>
-      {isLoaded ? null : <p>Loading...</p>}
-      {isLoaded ? (
+      {isLoaded2 ? null : <p>Loading...</p>}
+      {isLoaded2 ? (
         <div id="test">
           <Plot
             data={traceArr}

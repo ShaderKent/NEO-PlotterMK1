@@ -15,35 +15,20 @@ function App() {
     i: 0.0157,
     p: 102.94719
   };
+  const endDate = "2015-09-09"; //Temp date used to simulate a date range
 
   // State management
-  const [isLoaded, setIsLoaded] = useState<Boolean>(false);
+  const [isLoaded1, setIsLoaded1] = useState<Boolean>(false); //Handles the timing of trace calculations until the API Fetch
+  const [isLoaded2, setIsLoaded2] = useState<Boolean>(false); //Handles display of Plot, waits till data has been calculated
+  const [API_Request_Date, setAPI_Request_Date] =
+    useState<String>("2015-09-08");
   const [API_ID, setAPI_ID] = useState<Number>(3542517);
-  //   const [NEO_Data, setNEO_Data] = useState<NEO_JSON_Object>(); //Container for main API response data
-  const [orbitingBody, setOrbitingBody] = useState<OrbitingBody>(); //Sub container for orbital data for ease of use
   const [earthData, setEarthData] = useState<Orbital_Data>(earthStaticData);
+  const [orbitingBodyArr, setOrbitingBodyArr] = useState<OrbitingBody[]>([]); //An array of 5 orbiting bodies
 
   //API call
+  //`https://api.nasa.gov/neo/rest/v1/feed?start_date=${START_DATE}&end_date=${END_DATE}&api_key=YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj`
   //https://api.nasa.gov/neo/rest/v1/neo/3542517?api_key=YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetch(
-          `https://api.nasa.gov/neo/rest/v1/neo/${API_ID}?api_key=YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const json = await response.json();
-        handleSetOrbitalData(json);
-      } catch (e) {
-        console.log("error");
-      } finally {
-        setIsLoaded(true); //Triggers render
-      }
-    }
-    fetchData();
-  }, [API_ID]); //Runs on each update of API_ID
 
   const handleSetOrbitalData = (data: NEO_JSON_Object) => {
     //Splits relevant off of the main JSON object for calculating orbits
@@ -55,7 +40,6 @@ function App() {
         Number(item.miss_distance.astronomical)
       )
     );
-    console.log(minApproach);
     let count = -1;
     let minApproachIndex = -1;
     approachDistanceData.forEach((approach) => {
@@ -64,8 +48,9 @@ function App() {
         minApproachIndex = count;
       }
     });
-    console.log("indexOfMinApproach: ", minApproachIndex);
-    setOrbitingBody({
+
+    //Defines Orbiting body using passed in JSON values
+    const orbitingBody: OrbitingBody = {
       id: Number(data.neo_reference_id),
       name: String(data.name),
       OrbitingBody: String(
@@ -103,17 +88,104 @@ function App() {
         i: Number(data.orbital_data.inclination),
         p: Number(data.orbital_data.perihelion_argument)
       }
-    });
+    };
+    return orbitingBody;
   };
+
+  async function fetchNEOListData() {
+    //Fetches the first 5 NEO responses for a given date range and pulls their id reference number
+    //    Then passes those reference numbers to the next API call as an array.
+    try {
+      const response = await fetch(
+        `https://api.nasa.gov/neo/rest/v1/feed?start_date=${API_Request_Date}&end_date=${endDate}&api_key=YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj`
+      );
+      if (!response.ok) {
+        throw new Error(
+          `Outer API Call: HTTP error! status: ${response.status}`
+        );
+      }
+      const json = await response.json();
+      const idCallValues = [
+        json.near_earth_objects[String(API_Request_Date)][0].neo_reference_id,
+        json.near_earth_objects[String(API_Request_Date)][1].neo_reference_id,
+        json.near_earth_objects[String(API_Request_Date)][2].neo_reference_id,
+        json.near_earth_objects[String(API_Request_Date)][3].neo_reference_id,
+        json.near_earth_objects[String(API_Request_Date)][4].neo_reference_id
+      ];
+      fetchIDData(idCallValues);
+    } catch (e) {
+      console.log("Outer API Call: error");
+    } finally {
+      console.log("Success: Outer API call completed");
+    }
+  }
+
+  async function fetchIDData(idCallValues: Array<number>) {
+    //Takes a list of NEO reference numbers and makes a fetch call for each one, storing their values in state
+    //Designed to be able to call it for an individual object id as well (NEED TO TEST THIS)
+    try {
+      //Creates an array of the needed urls
+      let API_ID_URLs: String[] = [];
+      idCallValues.forEach((id) => {
+        const url = `https://api.nasa.gov/neo/rest/v1/neo/${Number(
+          id
+        )}?api_key=YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj`;
+        API_ID_URLs.push(url);
+      });
+      //Calls an async fetch request for each item in the url array, add their responses to a response array
+      let API_Responses: Response[] = [];
+      for (let i = 0; i < API_ID_URLs.length; i++) {
+        const response = await fetch(String(API_ID_URLs[i]));
+        API_Responses.push(response);
+      }
+      //Checks each item in the response array and logs an error if needed
+      for (let i = 0; i < API_Responses.length; i++) {
+        if (!API_Responses[i].ok) {
+          throw new Error(
+            `Inner: HTTP error! status: ${API_Responses[i].status}`
+          );
+        }
+      }
+      //Cycles through the response array and parses them as json, adding them to a json array.
+      let JSON_Arr: any[] = [];
+      for (let i = 0; i < API_Responses.length; i++) {
+        const json = await API_Responses[i].json();
+        JSON_Arr.push(json);
+      }
+      //Passes each item in the json array into a function that grabs the relevant data and returns an OrbitingBody object
+      //Adds those objects to an array
+      let bodyArr: OrbitingBody[] = [];
+      for (let i = 0; i < JSON_Arr.length; i++) {
+        const orbBody = handleSetOrbitalData(JSON_Arr[i]);
+        bodyArr.push(orbBody);
+      }
+      //Immutably sets the orbitalBodyArr to the values in the OrbitingBody array described above
+      setOrbitingBodyArr([...bodyArr]);
+    } catch (e) {
+      console.log("Inner API Loop: error");
+    } finally {
+      console.log("Success: Inner API call completed");
+      setIsLoaded1(true); //Triggers render
+    }
+  }
+
+  //Runs the initial API request
+  useEffect(() => {
+    fetchNEOListData();
+  }, []); //Once at startup
+
   return (
     <>
-      <Input setAPI={setAPI_ID} orbitingBody={orbitingBody} />
+      <Input setAPI={setAPI_ID} orbitingBodyArr={orbitingBodyArr} />
       <OrbitPlot
-        isLoaded={isLoaded}
-        setOrbitingBody={setOrbitingBody}
+        isLoaded1={isLoaded1}
+        setIsLoaded1={setIsLoaded1}
+        isLoaded2={isLoaded2}
+        setIsLoaded2={setIsLoaded2}
+        setOrbitingBodyArr={setOrbitingBodyArr}
         setEarthOrbitData={setEarthData}
         earthOrbitData={earthData}
-        orbitingBody={orbitingBody}
+        orbitingBodyArr={orbitingBodyArr}
       />
     </>
   );

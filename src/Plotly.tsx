@@ -106,10 +106,6 @@ interface Orbital_Data {
   r?: number; //Heliocenteric Distance (DERIVED) => Body's distance ot the sun
   orbit?: Array<Array<number>>; //Calculated orbit data in the form [[x],[y],[z]]
 }
-// interface Plot_Data {
-//   data: Array<any>;
-//   layout: object;
-// }
 
 interface myProps {}
 interface myState {
