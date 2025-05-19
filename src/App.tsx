@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import type { NEO_JSON_Object, Orbital_Data, OrbitingBody } from "./types";
 import Input from "./Input";
+import SideBar from "./SideBar";
 
 // interface dateVT{
 //   startDate: DateValueType;
@@ -187,6 +188,7 @@ function App() {
 
   return (
     <>
+      <SideBar />
       <button className="rounded-full bg-red-600">Button</button>
       <h1 className="font-bold underline">Testing This is a test</h1>
       <Input setAPI={setAPI_ID} orbitingBodyArr={orbitingBodyArr} />
