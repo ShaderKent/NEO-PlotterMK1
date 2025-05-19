@@ -353,13 +353,19 @@ function OrbitPlot({
     <>
       {isLoaded2 ? null : <p>Loading...</p>}
       {isLoaded2 ? (
-        <div id="test">
+        <div id="plot-container" className="border-1 border-solid">
           <Plot
             data={traceArr}
             layout={{
-              width: 1000,
-              height: 700,
-              title: { text: "A Fancy Plot" },
+              width: 1200,
+              height: 800,
+              margin: {
+                t: 0,
+                b: 0,
+                l: 0,
+                r: 0
+              },
+              showlegend: false,
               yaxis: {
                 tickmode: "linear",
                 ticks: "outside",
