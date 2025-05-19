@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 
 import type { NEO_JSON_Object, Orbital_Data, OrbitingBody } from "./types";
 import Input from "./Input";
-import Datepicker from "react-tailwindcss-datepicker";
 
 // interface dateVT{
 //   startDate: DateValueType;
@@ -188,9 +187,6 @@ function App() {
 
   return (
     <>
-      <div style={{ width: 1000 }}>
-        <Datepicker value={value} onChange={(newValue) => setValue(newValue)} />
-      </div>
       <Input setAPI={setAPI_ID} orbitingBodyArr={orbitingBodyArr} />
       <OrbitPlot
         isLoaded1={isLoaded1}
