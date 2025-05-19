@@ -187,6 +187,8 @@ function App() {
 
   return (
     <>
+      <button className="rounded-full bg-red-600">Button</button>
+      <h1 className="font-bold underline">Testing This is a test</h1>
       <Input setAPI={setAPI_ID} orbitingBodyArr={orbitingBodyArr} />
       <OrbitPlot
         isLoaded1={isLoaded1}
