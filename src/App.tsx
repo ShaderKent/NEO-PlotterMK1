@@ -3,8 +3,11 @@ import "./App.css";
 import { useEffect, useState } from "react";
 
 import type { NEO_JSON_Object, Orbital_Data, OrbitingBody } from "./types";
-import Input from "./Input";
 import SideBar from "./SideBar";
+import InfoTab1 from "./InfoTab1";
+import InfoTab2 from "./InfoTab2";
+import InfoTab3 from "./InfoTab3";
+import TitleBar from "./TitleBar";
 
 // interface dateVT{
 //   startDate: DateValueType;
@@ -187,11 +190,13 @@ function App() {
   }, []); //Once at startup
 
   return (
-    <>
+    <div className="w-screen h-screen">
+      <TitleBar />
       <SideBar />
-      <button className="rounded-full bg-red-600">Button</button>
-      <h1 className="font-bold underline">Testing This is a test</h1>
-      <Input setAPI={setAPI_ID} orbitingBodyArr={orbitingBodyArr} />
+      <InfoTab1 />
+      <InfoTab2 />
+      <InfoTab3 />
+      {/* <Input setAPI={setAPI_ID} orbitingBodyArr={orbitingBodyArr} /> */}
       <OrbitPlot
         isLoaded1={isLoaded1}
         setIsLoaded1={setIsLoaded1}
@@ -202,7 +207,7 @@ function App() {
         earthOrbitData={earthData}
         orbitingBodyArr={orbitingBodyArr}
       />
-    </>
+    </div>
   );
 }
 
