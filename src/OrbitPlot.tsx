@@ -1,4 +1,4 @@
-import { useEffect, useState, type JSX } from "react";
+import { useEffect } from "react";
 import "./App.css";
 import Plot from "react-plotly.js";
 import type { Orbital_Data, OrbitingBody } from "./types";
@@ -44,6 +44,8 @@ function OrbitPlot({
   const t = 946728000000; //Time in milliseconds after J2000 => used for calculating positions relative to this 'epoch'
   const today = new Date();
 
+  // Style Constants
+  const bg_gray_800 = "#1e2939";
   //Calculation of derived values
   const getAdjustedT = (
     value: string | null,
@@ -349,24 +351,41 @@ function OrbitPlot({
     sunMarker
   ];
 
+  // const resizeTest = () => {
+  //   Plotly.Plots.resize("mainPlot");
+  // };
+  // Plotly.react;
+
   return (
-    <>
+    <div className="bg-gray-900 static">
+      {/* <button onClick={() => resizeTest()}></button> */}
       {isLoaded2 ? null : <p>Loading...</p>}
       {isLoaded2 ? (
-        <div id="plot-container" className="border-1 border-solid">
+        <div
+          id="plot-container"
+          className="absolute right-6 bottom-6 top-14 w-2/3"
+        >
           <Plot
+            divId="mainPlot"
+            className="w-full h-full"
             data={traceArr}
+            useResizeHandler
             layout={{
-              width: 1200,
-              height: 800,
+              autosize: true,
+              // width: 1000,
+              // height: 600,
               margin: {
                 t: 0,
                 b: 0,
                 l: 0,
                 r: 0
               },
+              paper_bgcolor: bg_gray_800,
+              // minreducedwidth
+              // minreducedheight
               showlegend: false,
               yaxis: {
+                color: "#fff",
                 tickmode: "linear",
                 ticks: "outside",
                 tick0: 0,
@@ -374,23 +393,30 @@ function OrbitPlot({
                 ticklen: 8,
                 tickwidth: 4
               },
+              modebar: {
+                orientation: "v",
+                remove: ["resetCameraLastSave3d"]
+              },
               scene: {
                 xaxis: {
-                  range: [-2.5, 2.5]
+                  range: [-2.5, 2.5],
+                  color: "#fff"
                 },
                 yaxis: {
-                  range: [-2.5, 2.5]
+                  range: [-2.5, 2.5],
+                  color: "#fff"
                 },
                 zaxis: {
-                  range: [-1, 1]
+                  range: [-1, 1],
+                  color: "#fff"
                 }
               }
             }}
-            config={{ scrollZoom: true }}
+            config={{ responsive: true }}
           />
         </div>
       ) : null}
-    </>
+    </div>
   );
 }
 
