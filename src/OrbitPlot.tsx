@@ -351,19 +351,13 @@ function OrbitPlot({
     sunMarker
   ];
 
-  // const resizeTest = () => {
-  //   Plotly.Plots.resize("mainPlot");
-  // };
-  // Plotly.react;
-
   return (
     <div className="bg-gray-900 static">
-      {/* <button onClick={() => resizeTest()}></button> */}
       {isLoaded2 ? null : <p>Loading...</p>}
       {isLoaded2 ? (
         <div
           id="plot-container"
-          className="absolute right-6 bottom-6 top-14 w-2/3"
+          className="absolute right-0 md:right-6 bottom-6 top-20 md:top-14 w-full md:w-2/3"
         >
           <Plot
             divId="mainPlot"
