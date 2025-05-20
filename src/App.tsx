@@ -8,6 +8,7 @@ import InfoTab1 from "./InfoTab1";
 import InfoTab2 from "./InfoTab2";
 import InfoTab3 from "./InfoTab3";
 import TitleBar from "./TitleBar";
+import TimeShifter from "./TimeShifter";
 
 // interface dateVT{
 //   startDate: DateValueType;
@@ -196,6 +197,7 @@ function App() {
       <InfoTab1 />
       <InfoTab2 />
       <InfoTab3 />
+      <TimeShifter />
       {/* <Input setAPI={setAPI_ID} orbitingBodyArr={orbitingBodyArr} /> */}
       <OrbitPlot
         isLoaded1={isLoaded1}
