@@ -50,6 +50,7 @@ const SideBar = () => {
   };
 
   //Handles calling the above method on a resize event
+  window.addEventListener("load", handleResize); //hides tabs initially, need to rework
   window.addEventListener("resize", handleResize);
 
   const handleClick = (onClickValue: string) => {
