@@ -15,11 +15,6 @@ import InfoTab3 from "./InfoTab3";
 import TitleBar from "./TitleBar";
 import TimeShifter from "./TimeShifter";
 
-// interface dateVT{
-//   startDate: DateValueType;
-//   endDate: DateValueType;
-// }
-
 function App() {
   const earthStaticData: Orbital_Data = {
     date: "2023-05-14 12:00:00",

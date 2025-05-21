@@ -1,6 +1,11 @@
 import { useState, type ChangeEvent } from "react";
 import type { API_Response_List_Data, OrbitingBody } from "./types";
 import { FaArrowAltCircleDown } from "react-icons/fa";
+import StatDisplay from "./StatDisplay";
+
+interface selectedNEO {
+  close_approach_data: [{ close_approach_date_full: string }];
+}
 
 interface InfoTab1Props {
   setAPI_Request_Id: Function;
@@ -24,11 +29,13 @@ function InfoTab1({
     return String(currentDate);
   };
 
-  //State Variable
+  //State Variables
   const [selectedDate, setSelectedDate] = useState<string>(
     getFormattedCurrentDate()
   );
+  const [selectedNEO, setSelectedNEO] = useState<selectedNEO | null>(null);
 
+  //Handlers
   const handleDateChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSelectedDate(event.target.value);
     setAPI_Request_Date(event.target.value);
@@ -36,23 +43,38 @@ function InfoTab1({
   const handleClickDropDown = () => {
     dropDownTop?.classList.toggle("hidden");
   };
-  const handleClickDropDownItem = (dropDownItemId: string) => {
+  const handleClickDropDownItem = (
+    dropDownItemId: string,
+    dropDownListItem: selectedNEO
+  ) => {
     const id = dropDownItemId;
+    setSelectedNEO(dropDownListItem);
     setAPI_Request_Id(Number(id));
     dropDownTop?.classList.toggle("hidden");
   };
+
   return (
     <>
-      <div className="static w-1/3 h-full">
+      <div className="static w-1/2 h-full">
         <div
           id="infoTab1"
-          className="fixed top-15 left-0 md:left-15 md:h-2/3 h-1/3 z-12 border-2 rounded-md md:w-1/3 w-full bg-green-600 transition-all duration-1000"
+          className="fixed top-15 left-0 md:left-15 pb-3 z-12 border-2 rounded-md md:w-2/5 w-full bg-green-600 transition-all duration-1000"
         >
+          <div className="absolute right-0 h-full w-10 bg-green-800 rounded-r-sm inset-ring-2 inset-ring-green-900">
+            {/* <h1 className="absolute font-bold text-2xl bottom-25 md:top-20 rotate-90 w-50 transform -left-19">
+              Object Selector
+            </h1> */}
+          </div>
           {API_NEO_List ? null : <div className="loadingDiv">Loading...</div>}
           {API_NEO_List ? (
             <>
-              <div className="flex flex-row m-2 border-2 box-border rounded-sm">
-                <h3 className="px-5 m-auto">NEO Approach Date:</h3>
+              <div
+                className="relative flex flex-row m-2 border-2 box-border rounded-sm bg-white font-bold justify-self-start
+              ]"
+              >
+                <h3 className="m-auto p-2 bg-green-700 shadow-2xl">
+                  NEO Approach Date:
+                </h3>
                 <input
                   type="date"
                   value={String(selectedDate)}
@@ -65,22 +87,24 @@ function InfoTab1({
                   onClick={() => {
                     handleClickDropDown();
                   }}
-                  className="border-solid border-gray-400 bg-white border-[1px] px-5 rounded cursor-pointer font-bold w-[200px] ml-4 flex justify-between shadow-sm"
+                  className="border-soli border-2 bg-white px-5 rounded cursor-pointer font-bold w-[200px] ml-2 flex justify-between shadow-sm"
                 >
-                  Options
+                  Objects
                   <FaArrowAltCircleDown size={16} className="self-center" />
                 </div>
                 <div
                   id="dropDownTop"
-                  className="rounded border-gray-500 border-2 bg-white py-1 absolute ml-4 w-8/9 my-[1px] shadow-md justify-items-start hidden"
+                  className="rounded  border-2 bg-white py-1 absolute ml-2 w-8/9 my-[1px] shadow-md justify-items-start hidden"
                 >
                   {API_NEO_List.map((listItem: API_Response_List_Data) => {
                     return (
                       <div
+                        key={listItem.neo_reference_id}
                         id={listItem.neo_reference_id}
                         onClick={() =>
                           handleClickDropDownItem(
-                            String(listItem.neo_reference_id)
+                            String(listItem.neo_reference_id),
+                            listItem
                           )
                         }
                         className="cursor-pointer hover:bg-gray-300 px-2 flex justify-between w-full"
@@ -96,6 +120,83 @@ function InfoTab1({
                     );
                   })}
                 </div>
+                {orbitingBodyArr[0] ? (
+                  <>
+                    <StatDisplay
+                      title="Name:"
+                      value={String(orbitingBodyArr[0].name)}
+                    />
+
+                    <div className="flex flex-row justify-items-start">
+                      {selectedNEO ? (
+                        <div className="inline basis-auto">
+                          <StatDisplay
+                            title="Time:"
+                            value={String(
+                              selectedNEO.close_approach_data[0].close_approach_date_full.substring(
+                                12,
+                                18
+                              )
+                            )}
+                          />
+                        </div>
+                      ) : null}
+                      <div className="inline">
+                        <StatDisplay
+                          title="ID:"
+                          value={String(orbitingBodyArr[0].id)}
+                        />
+                      </div>
+                    </div>
+
+                    <StatDisplay
+                      title="Approach Distance:"
+                      value={String(
+                        orbitingBodyArr[0].closeApproachDistance.toFixed(2) +
+                          " km"
+                      )}
+                    />
+                    <StatDisplay
+                      title="Diameter (Max):"
+                      value={String(
+                        orbitingBodyArr[0].EstDiameterMax.toFixed(1) + " m"
+                      )}
+                    />
+                    <StatDisplay
+                      title="Diameter (Min):"
+                      value={String(
+                        orbitingBodyArr[0].EstDiameterMin.toFixed(1) + " m"
+                      )}
+                    />
+                    <StatDisplay
+                      title="Period:"
+                      value={String(
+                        orbitingBodyArr[0].orbitalPeriod.toFixed(2) + " days"
+                      )}
+                    />
+                    <StatDisplay
+                      title="Relative Speed:"
+                      value={String(
+                        orbitingBodyArr[0].closeApproachRelSpeed.toFixed(1) +
+                          " km/s"
+                      )}
+                    />
+                    <StatDisplay
+                      title="Hazard:"
+                      value={String(orbitingBodyArr[0].hazard)}
+                    />
+                    <StatDisplay
+                      title="First Observed:"
+                      value={String(orbitingBodyArr[0].firstObservation)}
+                    />
+                    <StatDisplay
+                      title="Orbit Established:"
+                      value={String(
+                        orbitingBodyArr[0].orbitalData.date
+                      ).substring(0, 11)}
+                    />
+                  </>
+                ) : null}
               </div>
             </>
           ) : null}

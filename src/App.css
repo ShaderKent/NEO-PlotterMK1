@@ -51,6 +51,12 @@
 .move-off-Y{
   transform: translate(0px, -500px);
 }
+
+@media screen and (min-width: 1200px) {
+  .move-off-X {
+    transform: translate(-1000px, 0px);
+  }
+}
 .move-right20px-up5px {
   transform: translate(20px, -5px)
 }
