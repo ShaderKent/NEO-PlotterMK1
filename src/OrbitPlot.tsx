@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import Plot from "react-plotly.js";
 import type { Orbital_Data, OrbitingBody } from "./types";
@@ -21,31 +21,33 @@ import type { Orbital_Data, OrbitingBody } from "./types";
 
 interface Props {
   isLoaded1: Boolean;
-  setIsLoaded1: Function;
   isLoaded2: Boolean;
   setIsLoaded2: Function;
-  setOrbitingBodyArr: Function;
-  setEarthOrbitData: Function;
-  earthOrbitData: Orbital_Data;
   orbitingBodyArr: OrbitingBody[];
+  setOrbitingBodyArr: Function;
+  earthOrbitData: Orbital_Data;
+  setEarthOrbitData: Function;
 }
 
 function OrbitPlot({
   isLoaded1,
-  setIsLoaded1,
   isLoaded2,
   setIsLoaded2,
+  orbitingBodyArr,
   setOrbitingBodyArr,
   setEarthOrbitData,
-  earthOrbitData,
-  orbitingBodyArr
+  earthOrbitData
 }: Props) {
   // Constants
   const t = 946728000000; //Time in milliseconds after J2000 => used for calculating positions relative to this 'epoch'
-  const today = new Date();
+  const today = new Date(); //Used for calculating todays date => Might be removed if unnecessary in future
+
+  //State Variables
+  const [XYZNEO, setXYZNEO] = useState<Array<Array<number>>>([[0], [0], [0]]);
 
   // Style Constants
   const bg_gray_800 = "#1e2939";
+
   //Calculation of derived values
   const getAdjustedT = (
     value: string | null,
@@ -169,9 +171,6 @@ function OrbitPlot({
   };
 
   //Containers for xyz point orbital coordinates
-  let NEOx_today: Array<number> = [];
-  let NEOy_today: Array<number> = [];
-  let NEOz_today: Array<number> = [];
   let earthX_today: Array<number> = [];
   let earthY_today: Array<number> = [];
   let earthZ_today: Array<number> = [];
@@ -198,7 +197,6 @@ function OrbitPlot({
       return { x: x, y: y, z: z };
     }
   };
-
   const XYZForSpecificDate = (
     year: number,
     month: number,
@@ -233,7 +231,7 @@ function OrbitPlot({
       //Update conditional rendering of the Plot
       setIsLoaded2(true);
     }
-  }, [isLoaded1]); //Dependent on API response completion
+  }, [isLoaded1]); //Dependent on API ID response completion
 
   //Calculation / handling of Earth's orbit trace -> handled separately due to static values
   useEffect(() => {
@@ -245,24 +243,29 @@ function OrbitPlot({
       });
     }
   }, []);
-  // Point Coordinates
-  if (isLoaded1) {
-    const NEOXYZ = XYZForSpecificDate(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-      0,
-      0,
-      0,
-      orbitingBodyArr[1].orbitalData
-    );
-    if (NEOXYZ) {
-      NEOx_today[0] = NEOXYZ[0];
-      NEOy_today[0] = NEOXYZ[1];
-      NEOz_today[0] = NEOXYZ[2];
-    }
-  }
 
+  // Point Coordinates
+  // NEO Coordinate
+  useEffect(() => {
+    if (isLoaded1) {
+      console.log("Arrived at NEO");
+      const NEOXYZ = XYZForSpecificDate(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+        0,
+        0,
+        0,
+        orbitingBodyArr[0].orbitalData
+      );
+      console.log(NEOXYZ);
+      if (NEOXYZ) {
+        setXYZNEO([[NEOXYZ[0]], [NEOXYZ[1]], [NEOXYZ[2]]]);
+      }
+    }
+  }, [isLoaded1]); //Dependent on API ID response completion
+
+  // Earth Coordinate
   const earthXYZ = XYZForSpecificDate(
     today.getFullYear(),
     today.getMonth(),
@@ -278,39 +281,26 @@ function OrbitPlot({
     earthZ_today[0] = earthXYZ[2];
   }
 
-  //Vestigial Currently
-  //   const displayData = (
-  //     <>
-  //       <p>{NEO_Data?.id}</p>
-  //       <p>{NEO_Data?.name}</p>
-  //       <p>{NEO_Data?.designation}</p>
-  //       <p>{NEO_Data?.is_potentially_hazardous_asteroid}</p>
-  //       <p>{NEO_Data?.close_approach_data[0].close_approach_date}</p>
-  //       <p>{NEO_Data?.orbital_data.aphelion_distance}</p>
-  //       <p></p>
-  //     </>
-  //   );
+  //Trace Definitions (for Plotly)
   const NEOtrace = {
-    x: orbitingBodyArr[1]?.orbitalData.orbit?.x,
-    y: orbitingBodyArr[1]?.orbitalData.orbit?.y,
-    z: orbitingBodyArr[1]?.orbitalData.orbit?.z,
+    x: orbitingBodyArr[0]?.orbitalData.orbit?.x,
+    y: orbitingBodyArr[0]?.orbitalData.orbit?.y,
+    z: orbitingBodyArr[0]?.orbitalData.orbit?.z,
     type: "scatter3d",
     mode: "lines",
     marker: { color: "red" },
     line: { shape: "spline", width: 2, dash: "solid" }
   };
-
   const NEOMarker = {
-    x: NEOx_today,
-    y: NEOy_today,
-    z: NEOz_today,
+    x: XYZNEO[0],
+    y: XYZNEO[1],
+    z: XYZNEO[2],
     hoverinfo: "text",
     text: "NEO",
     type: "scatter3d",
     mode: "markers",
     marker: { color: "red", size: 3 }
   };
-
   const earthTrace = {
     x: earthOrbitData?.orbit?.x,
     y: earthOrbitData?.orbit?.y,
@@ -320,7 +310,6 @@ function OrbitPlot({
     marker: { color: "green" },
     line: { shape: "spline", width: 2, dash: "solid" }
   };
-
   const earthMarker = {
     x: earthX_today,
     y: earthY_today,
@@ -331,7 +320,6 @@ function OrbitPlot({
     mode: "markers",
     marker: { color: "green", size: 5 }
   };
-
   const sunMarker = {
     x: [0],
     y: [0],
@@ -343,6 +331,7 @@ function OrbitPlot({
     marker: { color: "yellow", size: 12 }
   };
 
+  //Plotly Trace/Data Array
   const traceArr: Array<object> = [
     NEOtrace,
     NEOMarker,
@@ -366,8 +355,6 @@ function OrbitPlot({
             useResizeHandler
             layout={{
               autosize: true,
-              // width: 1000,
-              // height: 600,
               margin: {
                 t: 0,
                 b: 0,
