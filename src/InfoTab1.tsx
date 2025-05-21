@@ -1,24 +1,41 @@
+import { useState, type ChangeEvent } from "react";
 import type { API_Response_List_Data, OrbitingBody } from "./types";
 import { FaArrowAltCircleDown } from "react-icons/fa";
 
 interface InfoTab1Props {
   setAPI_Request_Id: Function;
+  setAPI_Request_Date: Function;
   API_NEO_List: any[];
   orbitingBodyArr: Array<OrbitingBody>;
 }
 
 function InfoTab1({
   setAPI_Request_Id,
+  setAPI_Request_Date,
   API_NEO_List,
   orbitingBodyArr
 }: InfoTab1Props) {
-  console.log(API_NEO_List);
+  //Constants
   const dropDownTop = document.getElementById("dropDownTop");
 
+  const getFormattedCurrentDate = () => {
+    const currentDate = new Date();
+    currentDate.toISOString().substring(0, 10);
+    return String(currentDate);
+  };
+
+  //State Variable
+  const [selectedDate, setSelectedDate] = useState<string>(
+    getFormattedCurrentDate()
+  );
+
+  const handleDateChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSelectedDate(event.target.value);
+    setAPI_Request_Date(event.target.value);
+  };
   const handleClickDropDown = () => {
     dropDownTop?.classList.toggle("hidden");
   };
-
   const handleClickDropDownItem = (dropDownItemId: string) => {
     const id = dropDownItemId;
     setAPI_Request_Id(Number(id));
@@ -36,11 +53,13 @@ function InfoTab1({
             <>
               <div className="flex flex-row m-2 border-2 box-border rounded-sm">
                 <h3 className="px-5 m-auto">NEO Approach Date:</h3>
-                <input type="date" className="border-l-2 px-2 "></input>
+                <input
+                  type="date"
+                  value={String(selectedDate)}
+                  onChange={(e) => handleDateChange(e)}
+                  className="border-l-2 px-2 "
+                ></input>
               </div>
-              {/* <h3>{String(API_Request_Id)}</h3> */}
-              {/* <h3>{String(orbitingBodyArr[0].name)}</h3> */}
-              {/* <div className="bg-gray-200 flex justify0center items-center h-screen"> */}
               <div className="relative">
                 <div
                   onClick={() => {
@@ -60,7 +79,9 @@ function InfoTab1({
                       <div
                         id={listItem.neo_reference_id}
                         onClick={() =>
-                          handleClickDropDownItem(String(listItem))
+                          handleClickDropDownItem(
+                            String(listItem.neo_reference_id)
+                          )
                         }
                         className="cursor-pointer hover:bg-gray-300 px-2 flex justify-between w-full"
                       >
