@@ -2,7 +2,12 @@ import OrbitPlot from "./OrbitPlot";
 import "./App.css";
 import { useEffect, useState } from "react";
 
-import type { NEO_JSON_Object, Orbital_Data, OrbitingBody } from "./types";
+import type {
+  API_Response_List_Data,
+  NEO_JSON_Object,
+  Orbital_Data,
+  OrbitingBody
+} from "./types";
 import SideBar from "./SideBar";
 import InfoTab1 from "./InfoTab1";
 import InfoTab2 from "./InfoTab2";
@@ -30,17 +35,17 @@ function App() {
   // State management
   const [isLoaded1, setIsLoaded1] = useState<Boolean>(false); //Handles the timing of trace calculations until the API Fetch
   const [isLoaded2, setIsLoaded2] = useState<Boolean>(false); //Handles display of Plot, waits till data has been calculated
+  const [isAPI_First_Complete, setIsAPI_First_Complete] =
+    useState<Boolean>(false);
   const [API_Request_Date, setAPI_Request_Date] =
     useState<String>("2015-09-08");
+  const [API_Request_Id, setAPI_Request_Id] = useState<Number | null>(null);
   const [API_ID, setAPI_ID] = useState<Number>(3542517);
   const [earthData, setEarthData] = useState<Orbital_Data>(earthStaticData);
+  const [API_NEO_List, setAPI_NEO_List] = useState<API_Response_List_Data[]>(
+    []
+  );
   const [orbitingBodyArr, setOrbitingBodyArr] = useState<OrbitingBody[]>([]); //An array of 5 orbiting bodies
-
-  //Datepicker stuff (TEMP)
-  const [value, setValue] = useState<any>({
-    startDate: null,
-    endDate: null
-  });
 
   //API call
   //`https://api.nasa.gov/neo/rest/v1/feed?start_date=${START_DATE}&end_date=${END_DATE}&api_key=YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj`
@@ -121,6 +126,7 @@ function App() {
         );
       }
       const json = await response.json();
+      setAPI_NEO_List([...json.near_earth_objects[String(API_Request_Date)]]);
       const idCallValues = [
         json.near_earth_objects[String(API_Request_Date)][0].neo_reference_id,
         json.near_earth_objects[String(API_Request_Date)][1].neo_reference_id,
@@ -128,11 +134,12 @@ function App() {
         json.near_earth_objects[String(API_Request_Date)][3].neo_reference_id,
         json.near_earth_objects[String(API_Request_Date)][4].neo_reference_id
       ];
-      fetchIDData(idCallValues);
+      // fetchIDData(idCallValues);
     } catch (e) {
       console.log("Outer API Call: error");
     } finally {
       console.log("Success: Outer API call completed");
+      setIsAPI_First_Complete(true);
     }
   }
 
@@ -194,11 +201,14 @@ function App() {
     <div className="w-screen h-screen">
       <TitleBar />
       <SideBar />
-      <InfoTab1 />
+      <InfoTab1
+        API_NEO_List={API_NEO_List}
+        setAPI_Request_Id={setAPI_Request_Id}
+        orbitingBodyArr={orbitingBodyArr}
+      />
       <InfoTab2 />
       <InfoTab3 />
       <TimeShifter />
-      {/* <Input setAPI={setAPI_ID} orbitingBodyArr={orbitingBodyArr} /> */}
       <OrbitPlot
         isLoaded1={isLoaded1}
         setIsLoaded1={setIsLoaded1}

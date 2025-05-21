@@ -110,4 +110,23 @@ export interface Orbital_Data {
     r?: number; //Heliocenteric Distance (DERIVED) => Body's distance ot the sun
     orbit?: OrbitXYZ;
 }
+
+export interface API_Response_List_Data {
+  absolute_magnitude_h: number, 
+  close_approach_data: [
+    {  
+    close_approach_date_full: string,
+    }
+  ],
+  estimated_diameter: {
+    kilometers: object,
+  },
+  id: string, 
+  is_potentially_hazardous_asteroid: Boolean, 
+  is_sentry_object: Boolean, 
+  links: object,
+  name: string, 
+  nasa_jpl_url: string, 
+  neo_reference_id: string, 
+}
   
