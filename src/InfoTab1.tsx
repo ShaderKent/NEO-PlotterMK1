@@ -60,7 +60,7 @@ function InfoTab1({
           id="infoTab1"
           className="fixed top-15 left-0 md:left-15 pb-3 z-12 border-2 rounded-md md:w-2/5 w-full bg-green-600 transition-all duration-1000"
         >
-          <div className="absolute right-0 h-full w-10 bg-green-800 rounded-r-sm inset-ring-2 inset-ring-green-900">
+          <div className="absolute right-0 h-full w-1/10 bg-green-800 rounded-r-sm inset-ring-2 inset-ring-green-900">
             {/* <h1 className="absolute font-bold text-2xl bottom-25 md:top-20 rotate-90 w-50 transform -left-19">
               Object Selector
             </h1> */}
