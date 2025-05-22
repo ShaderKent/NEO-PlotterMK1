@@ -354,6 +354,7 @@ function OrbitPlot({
               // minreducedwidth
               // minreducedheight
               showlegend: false,
+              uirevision: "true", //Look into this, allows for zoom to persist with more setup (keep state)
               yaxis: {
                 color: "#fff",
                 tickmode: "linear",

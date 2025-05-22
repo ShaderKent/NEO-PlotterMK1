@@ -17,6 +17,7 @@ import TimeShifter from "./TimeShifter";
 
 function App() {
   const today = new Date();
+  const todayUTC = String(Date.parse(today.toISOString()));
   const earthStaticData: Orbital_Data = {
     date: "2023-05-14 12:00:00",
     M: 100.46435,
@@ -39,9 +40,8 @@ function App() {
   const [API_NEO_List, setAPI_NEO_List] = useState<API_Response_List_Data[]>(
     []
   );
-  const [requestedOrbitTime, setRequestedOrbitTime] = useState<string>(
-    String(Date.parse(today.toISOString()))
-  );
+  const [requestedOrbitTime, setRequestedOrbitTime] =
+    useState<string>(todayUTC);
 
   //Orbital Data
   const [orbitingBodyArr, setOrbitingBodyArr] = useState<OrbitingBody[]>([]); //Vestigial as array (currently)
@@ -195,7 +195,10 @@ function App() {
       />
       <InfoTab2 orbitingBodyArr={orbitingBodyArr} />
       <InfoTab3 orbitingBodyArr={orbitingBodyArr} />
-      <TimeShifter />
+      <TimeShifter
+        requestedOrbitTime={requestedOrbitTime}
+        setRequestedOrbitTime={setRequestedOrbitTime}
+      />
       <OrbitPlot
         isLoaded1={isLoaded1}
         isLoaded2={isLoaded2}
