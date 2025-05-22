@@ -28,17 +28,24 @@ function App() {
   };
 
   // State management
+
+  //API Request/Data Management
   const [isLoaded1, setIsLoaded1] = useState<Boolean>(false); //Handles the timing of trace calculations until the API Fetch
   const [isLoaded2, setIsLoaded2] = useState<Boolean>(false); //Handles display of Plot, waits till data has been calculated
   const [API_Request_Date, setAPI_Request_Date] = useState<string>(
     today.toISOString().substring(0, 10)
   );
   const [API_Request_Id, setAPI_Request_Id] = useState<Number>(3542517); //3542517
-  const [earthData, setEarthData] = useState<Orbital_Data>(earthStaticData);
   const [API_NEO_List, setAPI_NEO_List] = useState<API_Response_List_Data[]>(
     []
   );
-  const [orbitingBodyArr, setOrbitingBodyArr] = useState<OrbitingBody[]>([]); //An array of 5 orbiting bodies
+  const [requestedOrbitTime, setRequestedOrbitTime] = useState<string>(
+    String(Date.parse(today.toISOString()))
+  );
+
+  //Orbital Data
+  const [orbitingBodyArr, setOrbitingBodyArr] = useState<OrbitingBody[]>([]); //Vestigial as array (currently)
+  const [earthData, setEarthData] = useState<Orbital_Data>(earthStaticData);
 
   //API call
   //`https://api.nasa.gov/neo/rest/v1/feed?start_date=${START_DATE}&end_date=${END_DATE}&api_key=YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj`
@@ -133,11 +140,6 @@ function App() {
       }
       const json = await response.json();
       setAPI_NEO_List([...json.near_earth_objects[String(API_Request_Date)]]);
-      // if (API_Request_Id == 0) {
-      //   setAPI_Request_Id(
-      //     Number(json.near_earth_objects[String(API_Request_Date)])
-      //   );
-      // }
     } catch (e) {
       console.log("First API Call: error");
     } finally {
@@ -176,8 +178,8 @@ function App() {
   //Runs second API Request when requested ID changes
   useEffect(() => {
     fetchNEOIdData();
-    setIsLoaded1(false);
-    setIsLoaded2(false);
+    setIsLoaded1(false); //Resets API load wait
+    setIsLoaded2(false); //Resets calculation load wait
   }, [API_Request_Id]);
 
   return (
@@ -188,6 +190,7 @@ function App() {
         API_NEO_List={API_NEO_List}
         setAPI_Request_Id={setAPI_Request_Id}
         setAPI_Request_Date={setAPI_Request_Date}
+        setRequestedOrbitTime={setRequestedOrbitTime}
         orbitingBodyArr={orbitingBodyArr}
       />
       <InfoTab2 orbitingBodyArr={orbitingBodyArr} />
@@ -197,6 +200,7 @@ function App() {
         isLoaded1={isLoaded1}
         isLoaded2={isLoaded2}
         setIsLoaded2={setIsLoaded2}
+        requestedOrbitTime={requestedOrbitTime}
         orbitingBodyArr={orbitingBodyArr}
         setOrbitingBodyArr={setOrbitingBodyArr}
         earthOrbitData={earthData}

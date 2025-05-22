@@ -9,11 +9,11 @@ import type { Orbital_Data, OrbitingBody } from "./types";
 //  X  Pull data from api NASA
 //      Cleanup Code/move API request to another file
 //  X   Graph that data
-//      Make basic UI
+//  X  Make basic UI
 //      Confirm Accuracy of Earth's Data
 //  X   Add plot for orbital body
-//      cycle through different api objects
-//      Add point arrays to state?
+//  X    cycle through different api objects
+//  X   Add point arrays to state?
 //      Dynamic grid axis size
 
 // NASA API Key: YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj
@@ -23,6 +23,7 @@ interface Props {
   isLoaded1: Boolean;
   isLoaded2: Boolean;
   setIsLoaded2: Function;
+  requestedOrbitTime: string;
   orbitingBodyArr: OrbitingBody[];
   setOrbitingBodyArr: Function;
   earthOrbitData: Orbital_Data;
@@ -33,6 +34,7 @@ function OrbitPlot({
   isLoaded1,
   isLoaded2,
   setIsLoaded2,
+  requestedOrbitTime,
   orbitingBodyArr,
   setOrbitingBodyArr,
   setEarthOrbitData,
@@ -44,6 +46,11 @@ function OrbitPlot({
 
   //State Variables
   const [XYZNEO, setXYZNEO] = useState<Array<Array<number>>>([[0], [0], [0]]);
+  const [XYZEarth, setXYZEarth] = useState<Array<Array<number>>>([
+    [0],
+    [0],
+    [0]
+  ]);
 
   // Style Constants
   const bg_gray_800 = "#1e2939";
@@ -95,22 +102,6 @@ function OrbitPlot({
         default:
           return T0 - t;
       }
-    }
-  };
-  const getAdjustedUTCForDate = (
-    //Works with XYZForSpecificDate() to request point data (rather than traces)
-    //Optional hour, minute, and seconds, but likely best to use 0,0,0 if unused
-    year: number,
-    month: number,
-    day: number,
-    hour?: number,
-    minute?: number,
-    second?: number
-  ) => {
-    if (hour && minute && second) {
-      return Date.UTC(year, month, day, hour, minute, second) - t;
-    } else {
-      return Date.UTC(year, month, day) - t;
     }
   };
   const calcAdjMeanAnomaly = (T: number | undefined, orbDat?: Orbital_Data) => {
@@ -197,16 +188,9 @@ function OrbitPlot({
       return { x: x, y: y, z: z };
     }
   };
-  const XYZForSpecificDate = (
-    year: number,
-    month: number,
-    day: number,
-    hour?: number,
-    minute?: number,
-    second?: number,
-    orbDat?: Orbital_Data
-  ) => {
-    const Tx = getAdjustedUTCForDate(year, month, day, hour, minute, second);
+  const XYZForSpecificDate = (date: string, orbDat: Orbital_Data) => {
+    // const Tx = getAdjustedT("day", 0, date);
+    const Tx = Number(date) - t;
     const Mx = calcAdjMeanAnomaly(Tx, orbDat);
     const v = calcTrueAnomaly(Mx, orbDat);
     const a = calcMeanDistance(orbDat);
@@ -233,8 +217,9 @@ function OrbitPlot({
     }
   }, [isLoaded1]); //Dependent on API ID response completion
 
-  //Calculation / handling of Earth's orbit trace -> handled separately due to static values
+  //Calculation / handling of Earth's orbit trace and initial point generation
   useEffect(() => {
+    console.log("earthXYZ and EarthTrace useEffect: none");
     const earthTraceData = XYZFromOrbData(earthOrbitData);
     if (earthOrbitData) {
       setEarthOrbitData({
@@ -242,44 +227,48 @@ function OrbitPlot({
         orbit: earthTraceData
       });
     }
-  }, []);
+    const earthXYZ = XYZForSpecificDate(requestedOrbitTime, earthOrbitData);
+    if (earthXYZ) {
+      earthX_today[0] = earthXYZ[0];
+      earthY_today[0] = earthXYZ[1];
+      earthZ_today[0] = earthXYZ[2];
+    }
+  }, []); //runs once on mount
 
   // Point Coordinates
   // NEO Coordinate
   useEffect(() => {
+    console.log(
+      "NEOXYZ useEffect: requestedOrbitTime, isLoaded1 => isLoaded? : ReqOrbitTime:",
+      requestedOrbitTime,
+      " isLoaded1: ",
+      isLoaded1
+    );
     if (isLoaded1) {
       console.log("Arrived at NEO");
       const NEOXYZ = XYZForSpecificDate(
-        today.getFullYear(),
-        today.getMonth(),
-        today.getDate(),
-        0,
-        0,
-        0,
+        requestedOrbitTime,
         orbitingBodyArr[0].orbitalData
       );
-      console.log(NEOXYZ);
       if (NEOXYZ) {
         setXYZNEO([[NEOXYZ[0]], [NEOXYZ[1]], [NEOXYZ[2]]]);
       }
     }
-  }, [isLoaded1]); //Dependent on API ID response completion
+  }, [isLoaded1, requestedOrbitTime]); //Dependent on API ID response completion and requestedOrbitTime change
 
   // Earth Coordinate
-  const earthXYZ = XYZForSpecificDate(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
-    0,
-    0,
-    0,
-    earthOrbitData
-  );
-  if (earthXYZ) {
-    earthX_today[0] = earthXYZ[0];
-    earthY_today[0] = earthXYZ[1];
-    earthZ_today[0] = earthXYZ[2];
-  }
+  useEffect(() => {
+    const earthXYZ = XYZForSpecificDate(requestedOrbitTime, earthOrbitData);
+    console.log(
+      "earthXYZ useEffect: requestedOrbitTime, reqOrbTime: ",
+      requestedOrbitTime,
+      " EarthXYZ ",
+      earthXYZ
+    );
+    if (earthXYZ) {
+      setXYZEarth([[earthXYZ[0]], [earthXYZ[1]], [earthXYZ[2]]]);
+    }
+  }, [requestedOrbitTime]); //dependent upon requestedOrbitTime change
 
   //Trace Definitions (for Plotly)
   const NEOtrace = {
@@ -311,9 +300,9 @@ function OrbitPlot({
     line: { shape: "spline", width: 2, dash: "solid" }
   };
   const earthMarker = {
-    x: earthX_today,
-    y: earthY_today,
-    z: earthZ_today,
+    x: XYZEarth[0],
+    y: XYZEarth[1],
+    z: XYZEarth[2],
     hoverinfo: "text",
     text: "Earth",
     type: "scatter3d",
