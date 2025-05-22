@@ -10,6 +10,7 @@ interface selectedNEO {
 interface InfoTab1Props {
   setAPI_Request_Id: Function;
   setAPI_Request_Date: Function;
+  setRequestedOrbitTime: Function;
   API_NEO_List: any[];
   orbitingBodyArr: Array<OrbitingBody>;
 }
@@ -17,6 +18,7 @@ interface InfoTab1Props {
 function InfoTab1({
   setAPI_Request_Id,
   setAPI_Request_Date,
+  setRequestedOrbitTime,
   API_NEO_List,
   orbitingBodyArr
 }: InfoTab1Props) {
@@ -39,7 +41,10 @@ function InfoTab1({
   const handleDateChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSelectedDate(event.target.value);
     setAPI_Request_Date(event.target.value);
+    //Sets the requested Time to Midnight of the requested day
+    setRequestedOrbitTime(Date.parse(event.target.value));
   };
+
   const handleClickDropDown = () => {
     dropDownTop?.classList.toggle("hidden");
   };
@@ -50,6 +55,11 @@ function InfoTab1({
     const id = dropDownItemId;
     setSelectedNEO(dropDownListItem);
     setAPI_Request_Id(Number(id));
+    setRequestedOrbitTime(
+      Date.parse(
+        dropDownListItem.close_approach_data[0].close_approach_date_full
+      )
+    );
     dropDownTop?.classList.toggle("hidden");
   };
 
