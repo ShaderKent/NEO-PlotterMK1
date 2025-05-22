@@ -125,6 +125,7 @@ function InfoTab1({
                     <StatDisplay
                       title="Name:"
                       value={String(orbitingBodyArr[0].name)}
+                      type="tab1"
                     />
 
                     <div className="flex flex-row justify-items-start">
@@ -138,6 +139,7 @@ function InfoTab1({
                                 18
                               )
                             )}
+                            type="tab1"
                           />
                         </div>
                       ) : null}
@@ -145,34 +147,30 @@ function InfoTab1({
                         <StatDisplay
                           title="ID:"
                           value={String(orbitingBodyArr[0].id)}
+                          type="tab1"
                         />
                       </div>
                     </div>
-
-                    <StatDisplay
-                      title="Approach Distance:"
-                      value={String(
-                        orbitingBodyArr[0].closeApproachDistance.toFixed(2) +
-                          " km"
-                      )}
-                    />
                     <StatDisplay
                       title="Diameter (Max):"
                       value={String(
                         orbitingBodyArr[0].EstDiameterMax.toFixed(1) + " m"
                       )}
+                      type="tab1"
                     />
                     <StatDisplay
                       title="Diameter (Min):"
                       value={String(
                         orbitingBodyArr[0].EstDiameterMin.toFixed(1) + " m"
                       )}
+                      type="tab1"
                     />
                     <StatDisplay
                       title="Period:"
                       value={String(
                         orbitingBodyArr[0].orbitalPeriod.toFixed(2) + " days"
                       )}
+                      type="tab1"
                     />
                     <StatDisplay
                       title="Relative Speed:"
@@ -180,20 +178,24 @@ function InfoTab1({
                         orbitingBodyArr[0].closeApproachRelSpeed.toFixed(1) +
                           " km/s"
                       )}
+                      type="tab1"
                     />
                     <StatDisplay
                       title="Hazard:"
                       value={String(orbitingBodyArr[0].hazard)}
+                      type="tab1"
                     />
                     <StatDisplay
                       title="First Observed:"
                       value={String(orbitingBodyArr[0].firstObservation)}
+                      type="tab1"
                     />
                     <StatDisplay
                       title="Orbit Established:"
                       value={String(
                         orbitingBodyArr[0].orbitalData.date
                       ).substring(0, 11)}
+                      type="tab1"
                     />
                   </>
                 ) : null}

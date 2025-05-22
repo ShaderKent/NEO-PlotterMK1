@@ -16,6 +16,7 @@ import TitleBar from "./TitleBar";
 import TimeShifter from "./TimeShifter";
 
 function App() {
+  const today = new Date();
   const earthStaticData: Orbital_Data = {
     date: "2023-05-14 12:00:00",
     M: 100.46435,
@@ -29,9 +30,10 @@ function App() {
   // State management
   const [isLoaded1, setIsLoaded1] = useState<Boolean>(false); //Handles the timing of trace calculations until the API Fetch
   const [isLoaded2, setIsLoaded2] = useState<Boolean>(false); //Handles display of Plot, waits till data has been calculated
-  const [API_Request_Date, setAPI_Request_Date] =
-    useState<string>("2015-09-08");
-  const [API_Request_Id, setAPI_Request_Id] = useState<Number>(3542517);
+  const [API_Request_Date, setAPI_Request_Date] = useState<string>(
+    today.toISOString().substring(0, 10)
+  );
+  const [API_Request_Id, setAPI_Request_Id] = useState<Number>(3542517); //3542517
   const [earthData, setEarthData] = useState<Orbital_Data>(earthStaticData);
   const [API_NEO_List, setAPI_NEO_List] = useState<API_Response_List_Data[]>(
     []
@@ -131,6 +133,11 @@ function App() {
       }
       const json = await response.json();
       setAPI_NEO_List([...json.near_earth_objects[String(API_Request_Date)]]);
+      // if (API_Request_Id == 0) {
+      //   setAPI_Request_Id(
+      //     Number(json.near_earth_objects[String(API_Request_Date)])
+      //   );
+      // }
     } catch (e) {
       console.log("First API Call: error");
     } finally {
@@ -183,8 +190,8 @@ function App() {
         setAPI_Request_Date={setAPI_Request_Date}
         orbitingBodyArr={orbitingBodyArr}
       />
-      <InfoTab2 />
-      <InfoTab3 />
+      <InfoTab2 orbitingBodyArr={orbitingBodyArr} />
+      <InfoTab3 orbitingBodyArr={orbitingBodyArr} />
       <TimeShifter />
       <OrbitPlot
         isLoaded1={isLoaded1}
