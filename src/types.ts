@@ -98,16 +98,16 @@ export interface OrbitingBody {
 }  
 
 export interface Orbital_Data {
-    date: string; //Date of data collection => used to calculate future values relative to a constant t (J2000)
+    date: number; //Date of perigee in epoch time (subtract j2000 to get usableT)
     M: number; //Mean Anomaly => How far around the orbit the object currently is in degrees. 0 at perihelion, 180 at aphelion
     e: number; //Eccentricity => How 'pointy' the orbit is: 0 = circular, < 1 = Elliptical, > 1 == Parabolic, > 1 = Hyperbolic
-    q: number; //Perihelion distance => Distance in A.U. from the sun at closest part of orbit
+    a: number; //Length of the semi major axis (1/2 the distance between the periapsis and apoapsis)
     o: number; //'Omega'(Capital) or ascending node longitude => Angle at the point where the orbit ascending passes through the horizontal plane of the earth and sun, in deg (counterclockwise)
     i: number; //Inclination => // angle (deg) between the plane of the orbit and the reference plane > 0-90deg normal direction orbit > 90-180deg retrograde orbits
     p: number; //'omega'(lowecase) or perihelion argument => The angle between the ascending node and the periapsis (lowest point of orbit)
-    v?: number; //True anomaly (DERIVED) => actual angle between the orbiting body and periapsis
-    a?: number; //Mean distance (DERIVED) => also known as the Semi-Major Axis
-    r?: number; //Heliocenteric Distance (DERIVED) => Body's distance ot the sun
+    // v?: number; //True anomaly (DERIVED) => actual angle between the orbiting body and periapsis
+    // ad?: number; //Mean distance (DERIVED) => also known as the Semi-Major Axis
+    // r?: number; //Heliocenteric Distance (DERIVED) => Body's distance ot the sun
     orbit?: OrbitXYZ;
 }
 

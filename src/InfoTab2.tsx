@@ -53,7 +53,7 @@ function InfoTab3({ orbitingBodyArr }: InfoTab2Props) {
               <StatDisplay
                 title="Perihelion distance (q)"
                 value={
-                  String(orbitingBodyArr[0].orbitalData.q.toFixed(7)) + " A.U"
+                  String(orbitingBodyArr[0].orbitalData.a.toFixed(7)) + " A.U"
                 }
                 type="tab2"
               />

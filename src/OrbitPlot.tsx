@@ -23,7 +23,7 @@ interface Props {
   isLoaded1: Boolean;
   isLoaded2: Boolean;
   setIsLoaded2: Function;
-  requestedOrbitTime: string;
+  requestedOrbitTime: number;
   orbitingBodyArr: OrbitingBody[];
   setOrbitingBodyArr: Function;
   earthOrbitData: Orbital_Data;
@@ -41,8 +41,7 @@ function OrbitPlot({
   earthOrbitData
 }: Props) {
   // Constants
-  const t = 946728000000; //Time in milliseconds after J2000 => used for calculating positions relative to this 'epoch'
-  const today = new Date(); //Used for calculating todays date => Might be removed if unnecessary in future
+  const t = 2451545 * (24 * 60 * 60 * 1000); //January 1, 4713 BC ending on Jan 1 2000 at 12:00pm in seconds
 
   //State Variables
   const [XYZNEO, setXYZNEO] = useState<Array<Array<number>>>([[0], [0], [0]]);
@@ -56,85 +55,59 @@ function OrbitPlot({
   const bg_gray_800 = "#1e2939";
 
   //Calculation of derived values
-  const getAdjustedT = (
-    value: string | null,
-    change: number,
-    dateString?: string
-  ) => {
-    if (dateString) {
-      //Used to calculate the adjusted time (Tx) for each point x along an orbit
-      // Takes the orbit determination date splits it into years, months, days, hours, minutes, and seconds
-      const year = dateString.substring(0, 4);
-      const month = dateString.substring(5, 7);
-      const day = dateString.substring(8, 10);
-      const hour = dateString.substring(11, 13);
-      const minute = dateString.substring(14, 16);
-      const second = dateString.substring(17, 19);
-
-      //Gets the UTC of that date in milliseconds
-      const T0 = Date.UTC(
-        Number(year),
-        Number(month),
-        Number(day),
-        Number(hour),
-        Number(minute),
-        Number(second)
-      );
-
-      // Depending on the value passed in, adjusts the date in milliseconds accordingly
-      // Finally, subtracts t => epoch constant (milliseconds since Jan 2000)
-      switch (value) {
-        case "year":
-          return T0 + change * (1000 * 60 * 60 * 24 * 365.5) - t;
-          break;
-        case "day":
-          return T0 + change * (1000 * 60 * 60 * 24) - t;
-          break;
-        case "hour":
-          return T0 + change * (1000 * 60 * 60) - t;
-          break;
-        case "minute":
-          return T0 + change * (1000 * 60) - t;
-          break;
-        case "second":
-          return T0 + change * 1000 - t;
-          break;
-        default:
-          return T0 - t;
-      }
+  const getAdjustedT2 = (value: string, change: number, date: number) => {
+    const secondsSinceJ200 = date - t;
+    switch (value) {
+      case "day":
+        const timeChange = change * 24 * 60 * 60 * 1000;
+        return secondsSinceJ200 + timeChange;
+        break;
+      default:
+        break;
     }
   };
-  const calcAdjMeanAnomaly = (T: number | undefined, orbDat?: Orbital_Data) => {
-    if (T && orbDat) {
-      const Mx = Number(orbDat.M) + 360 * (t / T); //t is in milliseconds currently
-      return Mx; //Value in degrees
+  const calcAdjMeanAnomaly = (
+    Tx: number | undefined,
+    orbDat?: Orbital_Data
+  ) => {
+    if (orbDat && Tx) {
+      const Mx = (2 * Math.PI * (Tx - t)) / (orbDat?.T * 24 * 60 * 60 * 1000);
+      return Mx;
     }
   };
   const calcTrueAnomaly = (Mx: number | undefined, orbDat?: Orbital_Data) => {
     if (Mx && orbDat) {
-      const e = Number(orbDat.e);
-      const i1 = 2 * e - e ** (3 / 4) * Math.sin(Mx);
-      const i2 = (5 / 4) * e ** 2 * Math.sin(2 * Mx);
-      const i3 = (13 / 12) * e ** 3 * Math.sin(3 * Mx);
-      const i4 = (103 / 96) * e ** 4 * Math.sin(4 * Mx);
-      const i5 = (1097 / 960) * e ** 5 * Math.sin(5 * Mx);
-      const v = Mx + (180 / Math.PI) * (i1 + i2 + i3 + i4 + i5);
-      return v; //Value in degrees
+      const v = Mx + 2 * orbDat?.e * Math.sin(Mx);
+      return v;
     }
   };
+
+  // const calcTrueAnomaly2 = (Mx: number | undefined, orbDat?: Orbital_Data) => {
+  //   if (Mx && orbDat) {
+  //     const e = Number(orbDat.e);
+  //     const i1 = 2 * e - e ** (3 / 4) * Math.sin(Mx);
+  //     const i2 = (5 / 4) * e ** 2 * Math.sin(2 * Mx);
+  //     const i3 = (13 / 12) * e ** 3 * Math.sin(3 * Mx);
+  //     const i4 = (103 / 96) * e ** 4 * Math.sin(4 * Mx);
+  //     const i5 = (1097 / 960) * e ** 5 * Math.sin(5 * Mx);
+  //     const v = Mx + (180 / Math.PI) * (i1 + i2 + i3 + i4 + i5);
+  //     return v; //Value in degrees
+  //   }
+  // };
   const calcMeanDistance = (orbDat?: Orbital_Data) => {
     if (orbDat) {
-      const a = orbDat.q / (1 - orbDat.e);
-      return a; //Value is in A.U.
+      const aX = orbDat.a / (1 - orbDat.e);
+      return aX; //Value is in A.U.   //NOT SURE IF THIS WORKS
     }
   };
+
   const calcHelioDist = (
-    a: number | undefined,
+    ax: number | undefined,
     v: number | undefined,
     orbDat?: Orbital_Data
   ) => {
-    if (a && v && orbDat) {
-      const r = (a * (1 - orbDat.e ** 2)) / (1 + orbDat.e * Math.cos(v));
+    if (ax && v && orbDat) {
+      const r = (ax * (1 - orbDat.e ** 2)) / (1 + orbDat.e * Math.cos(v)); //Currently dont have Ex updated to use ax
       return r; //Value is in A.U.
     }
   };
@@ -172,25 +145,25 @@ function OrbitPlot({
       let x = [];
       let y = [];
       let z = [];
-      for (let i = 0; i < 110; i += 0.01) {
-        const Tx = getAdjustedT("day", i, orbDat.date);
+      for (let i = 0; i < 600; i += 1) {
+        const Tx = getAdjustedT2("day", i, orbDat.date);
         const Mx = calcAdjMeanAnomaly(Tx, orbDat);
         const v = calcTrueAnomaly(Mx, orbDat);
-        const a = calcMeanDistance(orbDat);
-        const r = calcHelioDist(a, v, orbDat);
-        const coordinatePoint = calcXYZ(r, v, orbDat);
+        const ax = calcMeanDistance(orbDat);
+        const rx = calcHelioDist(ax, v, orbDat);
+        const coordinatePoint = calcXYZ(rx, v, orbDat);
         if (coordinatePoint) {
-          x.push(Number(coordinatePoint[0].toFixed(10)));
-          y.push(Number(coordinatePoint[1].toFixed(10)));
-          z.push(Number(coordinatePoint[2].toFixed(10)));
+          x.push(Number(coordinatePoint[0]));
+          y.push(Number(coordinatePoint[1]));
+          z.push(Number(coordinatePoint[2]));
         }
       }
       return { x: x, y: y, z: z };
     }
   };
-  const XYZForSpecificDate = (date: string, orbDat: Orbital_Data) => {
-    // const Tx = getAdjustedT("day", 0, date);
-    const Tx = Number(date) - t;
+
+  const XYZForSpecificDate = (date: number, orbDat: Orbital_Data) => {
+    const Tx = Number(date);
     const Mx = calcAdjMeanAnomaly(Tx, orbDat);
     const v = calcTrueAnomaly(Mx, orbDat);
     const a = calcMeanDistance(orbDat);
@@ -211,7 +184,7 @@ function OrbitPlot({
         body.orbitalData.orbit = XYZFromOrbData(body?.orbitalData);
       });
       setOrbitingBodyArr(copyOrbBodyArr);
-
+      console.log(copyOrbBodyArr[0]);
       //Update conditional rendering of the Plot
       setIsLoaded2(true);
     }
@@ -343,7 +316,7 @@ function OrbitPlot({
             data={traceArr}
             useResizeHandler
             layout={{
-              autosize: true,
+              // autosize: true,
               margin: {
                 t: 0,
                 b: 0,
@@ -359,10 +332,10 @@ function OrbitPlot({
                 color: "#fff",
                 tickmode: "linear",
                 ticks: "outside",
-                tick0: 0,
-                dtick: 0.25,
-                ticklen: 8,
-                tickwidth: 4
+                scaleanchor: "y"
+              },
+              xaxis: {
+                tickmode: "linear"
               },
               modebar: {
                 orientation: "v",
@@ -370,16 +343,21 @@ function OrbitPlot({
               },
               scene: {
                 xaxis: {
-                  range: [-2.5, 2.5],
+                  range: [-4.0, 4.0],
                   color: "#fff"
                 },
                 yaxis: {
-                  range: [-2.5, 2.5],
+                  range: [-4.0, 4.0],
                   color: "#fff"
                 },
                 zaxis: {
-                  range: [-1, 1],
+                  range: [-4.0, 4.0],
                   color: "#fff"
+                },
+                aspectratio: {
+                  x: 1,
+                  y: 1,
+                  z: 1
                 }
               }
             }}

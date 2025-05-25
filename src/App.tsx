@@ -17,15 +17,48 @@ import TimeShifter from "./TimeShifter";
 
 function App() {
   const today = new Date();
-  const todayUTC = String(Date.parse(today.toISOString()));
-  const earthStaticData: Orbital_Data = {
-    date: "2023-05-14 12:00:00",
+  const todayUTC = Date.parse(today.toISOString()); //Date today since UTC Epoch (J1 1970)
+  const unixEpoch = 946684800; //Seconds from J1 1970 TO J1 2000
+  const todayAdjustedToJ2000 = todayUTC - unixEpoch; //Convert todays date to J2000 format (seconds)
+  const mercuryStaticData: Orbital_Data = {
+    date: 2451545 * (24 * 60 * 60 * 1000), //J2000 = Number of milliseconds since January 1, 4713 BC ending on Jan 1 2000 at 12:00pm
+    M: 252.25084,
+    e: 0.20563069,
+    a: 0.38709893,
+    o: 48.33167,
+    i: 7.00487,
+    p: 77.45645,
+    T: 87.968
+  };
+  const venusStaticData: Orbital_Data = {
+    date: 738445, //"2023-05-14 12:00:00", 738445
     M: 100.46435,
     e: 0.01671022,
-    q: 0.98329,
-    o: 11.26064,
-    i: 0.0157,
-    p: 102.94719
+    a: 1.00000011,
+    o: -11.26064,
+    i: 0.00005,
+    p: 102.94719,
+    T: 365.4
+  };
+  const earthStaticData: Orbital_Data = {
+    date: 2451545 * (24 * 60 * 60 * 1000), //j2000 in milliseconds
+    M: 100.46435,
+    e: 0.01671022,
+    a: 1.00000011,
+    o: -11.26064,
+    i: 0.00005,
+    p: 102.94719,
+    T: 365.4
+  };
+  const marsStaticData: Orbital_Data = {
+    date: 738445, //"2023-05-14 12:00:00", 738445
+    M: 100.46435,
+    e: 0.01671022,
+    a: 1.00000011,
+    o: -11.26064,
+    i: 0.00005,
+    p: 102.94719,
+    T: 365.4
   };
 
   // State management
@@ -41,8 +74,7 @@ function App() {
     []
   );
   const [requestedOrbitTime, setRequestedOrbitTime] =
-    useState<string>(todayUTC);
-
+    useState<number>(todayAdjustedToJ2000);
   //Orbital Data
   const [orbitingBodyArr, setOrbitingBodyArr] = useState<OrbitingBody[]>([]); //Vestigial as array (currently)
   const [earthData, setEarthData] = useState<Orbital_Data>(earthStaticData);
@@ -114,13 +146,14 @@ function App() {
       firstObservation: String(data.orbital_data.first_observation_date),
       lastObservation: String(data.orbital_data.last_observation_date),
       orbitalData: {
-        date: String(data.orbital_data.orbit_determination_date),
+        date: Number(data.orbital_data.perihelion_time) * (24 * 60 * 60 * 1000), //Converted to j2000 time in milliseconds
         M: Number(data.orbital_data.mean_anomaly),
         e: Number(data.orbital_data.eccentricity),
-        q: Number(data.orbital_data.perihelion_distance),
+        a: Number(data.orbital_data.semi_major_axis),
         o: Number(data.orbital_data.ascending_node_longitude),
         i: Number(data.orbital_data.inclination),
-        p: Number(data.orbital_data.perihelion_argument)
+        p: Number(data.orbital_data.perihelion_argument),
+        T: Number(data.orbital_data.orbital_period)
       }
     };
     return orbitingBody;

@@ -59,6 +59,7 @@ function InfoTab1({
       Date.parse(
         dropDownListItem.close_approach_data[0].close_approach_date_full
       )
+      // / (24 * 60 * 60)
     );
     dropDownTop?.classList.toggle("hidden");
   };

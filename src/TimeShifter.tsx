@@ -7,7 +7,7 @@ import {
 import StatDisplay from "./StatDisplay";
 
 interface TimeShifterProps {
-  requestedOrbitTime: string;
+  requestedOrbitTime: number;
   setRequestedOrbitTime: Function;
 }
 
@@ -15,43 +15,43 @@ function TimeShifter({
   requestedOrbitTime,
   setRequestedOrbitTime
 }: TimeShifterProps) {
-  const formatTime = (time: string) => {
-    const formattedTime = new Date(Number(time));
-    return String(formattedTime.toISOString());
+  const formatTime = (time: number) => {
+    return new Date(time).toISOString().substring(0, 19);
   };
 
   const handleClick = (value: string) => {
     let change = 0;
     switch (value) {
       case "-week":
-        change = 1000 * 60 * 60 * 24 * 7 * -1;
+        change = -7 * 24 * 60 * 60 * 1000;
         break;
       case "+week":
-        change = 1000 * 60 * 60 * 24 * 7;
+        change = 7 * 24 * 60 * 60 * 1000;
         break;
       case "-day":
-        change = 1000 * 60 * 60 * 24 * -1;
+        change = -1 * 24 * 60 * 60 * 1000;
         break;
       case "+day":
-        change = 1000 * 60 * 60 * 24;
+        change = 1 * 24 * 60 * 60 * 1000;
         break;
       case "-hour":
-        change = 1000 * 60 * 60 * -1;
+        change = -1 * 60 * 60 * 1000;
         break;
       case "+hour":
-        change = 1000 * 60 * 60;
+        change = 1 * 60 * 60 * 1000;
         break;
       case "-minute":
-        change = 1000 * 60 * -1;
+        change = -1 * 60 * 1000;
         break;
       case "+minute":
-        change = 1000 * 60;
+        change = 1 * 60 * 1000;
         break;
       default:
         break;
     }
     setRequestedOrbitTime((prev: any) => {
-      return String((prev = Number(prev) + change));
+      const change1000 = change;
+      return (prev = Number(prev) + change1000);
     });
   };
 
@@ -71,7 +71,7 @@ function TimeShifter({
               />
               <StatDisplay
                 title="Time: "
-                value={formatTime(requestedOrbitTime).substring(11, 19)}
+                value={formatTime(requestedOrbitTime).substring(11, 16)}
                 type="tab3"
               />
             </div>
