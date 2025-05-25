@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import Plot from "react-plotly.js";
-import type { Orbital_Data, OrbitingBody } from "./types";
+import type { Orbital_Data, OrbitingBody, PlanetDisplay } from "./types";
 
 // TODO Add Redux to final project
 //  X   Add plotly
@@ -26,8 +26,11 @@ interface Props {
   requestedOrbitTime: number;
   orbitingBodyArr: OrbitingBody[];
   setOrbitingBodyArr: Function;
-  earthOrbitData: Orbital_Data;
-  setEarthOrbitData: Function;
+  planetData: {
+    display: PlanetDisplay;
+    planets: Orbital_Data[];
+  };
+  setPlanetData: Function;
 }
 
 function OrbitPlot({
@@ -37,19 +40,30 @@ function OrbitPlot({
   requestedOrbitTime,
   orbitingBodyArr,
   setOrbitingBodyArr,
-  setEarthOrbitData,
-  earthOrbitData
+  planetData,
+  setPlanetData
 }: Props) {
   // Constants
   const t = 2451545 * (24 * 60 * 60 * 1000); //January 1, 4713 BC ending on Jan 1 2000 at 12:00pm in seconds
-
+  const degToRad = Math.PI / 180;
   //State Variables
   const [XYZNEO, setXYZNEO] = useState<Array<Array<number>>>([[0], [0], [0]]);
+  const [XYZMercury, setXYZMercury] = useState<Array<Array<number>>>([
+    [0],
+    [0],
+    [0]
+  ]);
+  const [XYZVenus, setXYZVenus] = useState<Array<Array<number>>>([
+    [0],
+    [0],
+    [0]
+  ]);
   const [XYZEarth, setXYZEarth] = useState<Array<Array<number>>>([
     [0],
     [0],
     [0]
   ]);
+  const [XYZMars, setXYZMars] = useState<Array<Array<number>>>([[0], [0], [0]]);
 
   // Style Constants
   const bg_gray_800 = "#1e2939";
@@ -118,9 +132,9 @@ function OrbitPlot({
     orbDat?: Orbital_Data
   ) => {
     if (r && v && orbDat) {
-      const o = Number(orbDat.o);
-      const p = Number(orbDat.p);
-      const i = Number(orbDat.i);
+      const o = Number(orbDat.o) * degToRad;
+      const p = Number(orbDat.p) * degToRad;
+      const i = Number(orbDat.i) * degToRad;
       const x =
         r *
         (Math.cos(o) * Math.cos(v + p - o) -
@@ -134,18 +148,13 @@ function OrbitPlot({
     }
   };
 
-  //Containers for xyz point orbital coordinates
-  let earthX_today: Array<number> = [];
-  let earthY_today: Array<number> = [];
-  let earthZ_today: Array<number> = [];
-
   //Coordinate Generation Functions
   const XYZFromOrbData = (orbDat?: Orbital_Data) => {
     if (orbDat) {
       let x = [];
       let y = [];
       let z = [];
-      for (let i = 0; i < 600; i += 1) {
+      for (let i = 0; i < orbDat.T + 1; i += 1) {
         const Tx = getAdjustedT2("day", i, orbDat.date);
         const Mx = calcAdjMeanAnomaly(Tx, orbDat);
         const v = calcTrueAnomaly(Mx, orbDat);
@@ -193,18 +202,73 @@ function OrbitPlot({
   //Calculation / handling of Earth's orbit trace and initial point generation
   useEffect(() => {
     console.log("earthXYZ and EarthTrace useEffect: none");
-    const earthTraceData = XYZFromOrbData(earthOrbitData);
-    if (earthOrbitData) {
-      setEarthOrbitData({
-        ...earthOrbitData,
-        orbit: earthTraceData
+    if (planetData.planets[0] && planetData.display.mercury == true) {
+      const mercuryTraceData = XYZFromOrbData(planetData.planets[0]);
+      setPlanetData({
+        ...planetData,
+        planets: [
+          ...planetData.planets,
+          (planetData.planets[0].orbit = mercuryTraceData)
+        ]
       });
+      const mercuryXYZ = XYZForSpecificDate(
+        requestedOrbitTime,
+        planetData.planets[0]
+      );
+      if (mercuryXYZ) {
+        setXYZMercury([[mercuryXYZ[0]], [mercuryXYZ[1]], [mercuryXYZ[2]]]);
+      }
     }
-    const earthXYZ = XYZForSpecificDate(requestedOrbitTime, earthOrbitData);
-    if (earthXYZ) {
-      earthX_today[0] = earthXYZ[0];
-      earthY_today[0] = earthXYZ[1];
-      earthZ_today[0] = earthXYZ[2];
+    if (planetData.planets[1] && planetData.display.venus == true) {
+      const venusTraceData = XYZFromOrbData(planetData.planets[1]);
+      setPlanetData({
+        ...planetData,
+        planets: [
+          ...planetData.planets,
+          (planetData.planets[1].orbit = venusTraceData)
+        ]
+      });
+      const venusXYZ = XYZForSpecificDate(
+        requestedOrbitTime,
+        planetData.planets[1]
+      );
+      if (venusXYZ) {
+        setXYZVenus([[venusXYZ[0]], [venusXYZ[1]], [venusXYZ[2]]]);
+      }
+    }
+    if (planetData.planets[2] && planetData.display.earth == true) {
+      const earthTraceData = XYZFromOrbData(planetData.planets[2]);
+      setPlanetData({
+        ...planetData,
+        planets: [
+          ...planetData.planets,
+          (planetData.planets[2].orbit = earthTraceData)
+        ]
+      });
+      const earthXYZ = XYZForSpecificDate(
+        requestedOrbitTime,
+        planetData.planets[2]
+      );
+      if (earthXYZ) {
+        setXYZEarth([[earthXYZ[0]], [earthXYZ[1]], [earthXYZ[2]]]);
+      }
+    }
+    if (planetData.planets[3] && planetData.display.mars == true) {
+      const marsTraceData = XYZFromOrbData(planetData.planets[3]);
+      setPlanetData({
+        ...planetData,
+        planets: [
+          ...planetData.planets,
+          (planetData.planets[3].orbit = marsTraceData)
+        ]
+      });
+      const marsXYZ = XYZForSpecificDate(
+        requestedOrbitTime,
+        planetData.planets[3]
+      );
+      if (marsXYZ) {
+        setXYZMars([[marsXYZ[0]], [marsXYZ[1]], [marsXYZ[2]]]);
+      }
     }
   }, []); //runs once on mount
 
@@ -231,15 +295,41 @@ function OrbitPlot({
 
   // Earth Coordinate
   useEffect(() => {
-    const earthXYZ = XYZForSpecificDate(requestedOrbitTime, earthOrbitData);
-    console.log(
-      "earthXYZ useEffect: requestedOrbitTime, reqOrbTime: ",
-      requestedOrbitTime,
-      " EarthXYZ ",
-      earthXYZ
-    );
-    if (earthXYZ) {
-      setXYZEarth([[earthXYZ[0]], [earthXYZ[1]], [earthXYZ[2]]]);
+    if (planetData.display.mercury == true) {
+      const mercuryXYZ = XYZForSpecificDate(
+        requestedOrbitTime,
+        planetData.planets[0]
+      );
+      if (mercuryXYZ) {
+        setXYZMercury([[mercuryXYZ[0]], [mercuryXYZ[1]], [mercuryXYZ[2]]]);
+      }
+    }
+    if (planetData.display.venus == true) {
+      const venusXYZ = XYZForSpecificDate(
+        requestedOrbitTime,
+        planetData.planets[1]
+      );
+      if (venusXYZ) {
+        setXYZVenus([[venusXYZ[0]], [venusXYZ[1]], [venusXYZ[2]]]);
+      }
+    }
+    if (planetData.display.earth == true) {
+      const earthXYZ = XYZForSpecificDate(
+        requestedOrbitTime,
+        planetData.planets[2]
+      );
+      if (earthXYZ) {
+        setXYZEarth([[earthXYZ[0]], [earthXYZ[1]], [earthXYZ[2]]]);
+      }
+    }
+    if (planetData.display.mars == true) {
+      const marsXYZ = XYZForSpecificDate(
+        requestedOrbitTime,
+        planetData.planets[3]
+      );
+      if (marsXYZ) {
+        setXYZMars([[marsXYZ[0]], [marsXYZ[1]], [marsXYZ[2]]]);
+      }
     }
   }, [requestedOrbitTime]); //dependent upon requestedOrbitTime change
 
@@ -250,7 +340,7 @@ function OrbitPlot({
     z: orbitingBodyArr[0]?.orbitalData.orbit?.z,
     type: "scatter3d",
     mode: "lines",
-    marker: { color: "red" },
+    marker: { color: "blue" },
     line: { shape: "spline", width: 2, dash: "solid" }
   };
   const NEOMarker = {
@@ -261,12 +351,50 @@ function OrbitPlot({
     text: "NEO",
     type: "scatter3d",
     mode: "markers",
-    marker: { color: "red", size: 3 }
+    marker: { color: "blue", size: 3 }
+  };
+  const mercuryTrace = {
+    x: planetData.planets[0]?.orbit?.x,
+    y: planetData.planets[0]?.orbit?.y,
+    z: planetData.planets[0]?.orbit?.z,
+    type: "scatter3d",
+    mode: "lines",
+    marker: { color: "orange" },
+    line: { shape: "spline", width: 2, dash: "solid" }
+  };
+  const mercuryMarker = {
+    x: XYZMercury[0],
+    y: XYZMercury[1],
+    z: XYZMercury[2],
+    hoverinfo: "text",
+    text: "Mercury",
+    type: "scatter3d",
+    mode: "markers",
+    marker: { color: "orange", size: 5 }
+  };
+  const venusTrace = {
+    x: planetData.planets[1]?.orbit?.x,
+    y: planetData.planets[1]?.orbit?.y,
+    z: planetData.planets[1]?.orbit?.z,
+    type: "scatter3d",
+    mode: "lines",
+    marker: { color: "purple" },
+    line: { shape: "spline", width: 2, dash: "solid" }
+  };
+  const venusMarker = {
+    x: XYZVenus[0],
+    y: XYZVenus[1],
+    z: XYZVenus[2],
+    hoverinfo: "text",
+    text: "Venus",
+    type: "scatter3d",
+    mode: "markers",
+    marker: { color: "purple", size: 5 }
   };
   const earthTrace = {
-    x: earthOrbitData?.orbit?.x,
-    y: earthOrbitData?.orbit?.y,
-    z: earthOrbitData?.orbit?.z,
+    x: planetData.planets[2]?.orbit?.x,
+    y: planetData.planets[2]?.orbit?.y,
+    z: planetData.planets[2]?.orbit?.z,
     type: "scatter3d",
     mode: "lines",
     marker: { color: "green" },
@@ -282,6 +410,25 @@ function OrbitPlot({
     mode: "markers",
     marker: { color: "green", size: 5 }
   };
+  const marsTrace = {
+    x: planetData.planets[3]?.orbit?.x,
+    y: planetData.planets[3]?.orbit?.y,
+    z: planetData.planets[3]?.orbit?.z,
+    type: "scatter3d",
+    mode: "lines",
+    marker: { color: "red" },
+    line: { shape: "spline", width: 2, dash: "solid" }
+  };
+  const marsMarker = {
+    x: XYZMars[0],
+    y: XYZMars[1],
+    z: XYZMars[2],
+    hoverinfo: "text",
+    text: "Mars",
+    type: "scatter3d",
+    mode: "markers",
+    marker: { color: "red", size: 5 }
+  };
   const sunMarker = {
     x: [0],
     y: [0],
@@ -294,13 +441,12 @@ function OrbitPlot({
   };
 
   //Plotly Trace/Data Array
-  const traceArr: Array<object> = [
-    NEOtrace,
-    NEOMarker,
-    earthTrace,
-    earthMarker,
-    sunMarker
-  ];
+  const traceArr: Array<object> = [NEOtrace, NEOMarker, sunMarker];
+
+  if (planetData.display.mercury) traceArr.push(mercuryTrace, mercuryMarker);
+  if (planetData.display.venus) traceArr.push(venusTrace, venusMarker);
+  if (planetData.display.earth) traceArr.push(earthTrace, earthMarker);
+  if (planetData.display.mars) traceArr.push(marsTrace, marsMarker);
 
   return (
     <div className="bg-gray-900 static">

@@ -105,10 +105,15 @@ export interface Orbital_Data {
     o: number; //'Omega'(Capital) or ascending node longitude => Angle at the point where the orbit ascending passes through the horizontal plane of the earth and sun, in deg (counterclockwise)
     i: number; //Inclination => // angle (deg) between the plane of the orbit and the reference plane > 0-90deg normal direction orbit > 90-180deg retrograde orbits
     p: number; //'omega'(lowecase) or perihelion argument => The angle between the ascending node and the periapsis (lowest point of orbit)
-    // v?: number; //True anomaly (DERIVED) => actual angle between the orbiting body and periapsis
-    // ad?: number; //Mean distance (DERIVED) => also known as the Semi-Major Axis
-    // r?: number; //Heliocenteric Distance (DERIVED) => Body's distance ot the sun
+    T: number;
     orbit?: OrbitXYZ;
+}
+
+export interface PlanetDisplay {
+  mercury: boolean,
+  venus: boolean,
+  earth: boolean,
+  mars: boolean,
 }
 
 export interface API_Response_List_Data {
