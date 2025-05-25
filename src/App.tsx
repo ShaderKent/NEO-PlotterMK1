@@ -18,6 +18,7 @@ import type {
   PlanetDisplay
 } from "./types";
 import planetStaticData from "./planetData";
+import InfoTab4 from "./InfoTab4";
 
 function App() {
   const today = new Date();
@@ -203,6 +204,7 @@ function App() {
       />
       <InfoTab2 orbitingBodyArr={orbitingBodyArr} />
       <InfoTab3 orbitingBodyArr={orbitingBodyArr} />
+      <InfoTab4 />
       <TimeShifter
         requestedOrbitTime={requestedOrbitTime}
         setRequestedOrbitTime={setRequestedOrbitTime}
