@@ -154,7 +154,7 @@ function OrbitPlot({
       let x = [];
       let y = [];
       let z = [];
-      for (let i = 0; i < orbDat.T + 1; i += 1) {
+      for (let i = 0; i < orbDat.T + 10; i += 1) {
         const Tx = getAdjustedT2("day", i, orbDat.date);
         const Mx = calcAdjMeanAnomaly(Tx, orbDat);
         const v = calcTrueAnomaly(Mx, orbDat);

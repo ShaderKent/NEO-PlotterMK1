@@ -13,6 +13,7 @@ const SideBar = () => {
   const tab1 = document.querySelector("#infoTab1");
   const tab2 = document.querySelector("#infoTab2");
   const tab3 = document.querySelector("#infoTab3");
+  const tab4 = document.querySelector("#infoTab4");
   const timeShifter = document.querySelector("#timeShifter");
 
   //Custom hook to force a rerender on window size change
@@ -34,18 +35,22 @@ const SideBar = () => {
       tab1?.classList.remove("move-off-X");
       tab2?.classList.remove("move-off-X");
       tab3?.classList.remove("move-off-X");
+      tab4?.classList.remove("move-off-X");
 
       tab1?.classList.add("move-off-Y");
       tab2?.classList.add("move-off-Y");
       tab3?.classList.add("move-off-Y");
+      tab4?.classList.add("move-off-Y");
     } else {
       tab1?.classList.remove("move-off-Y");
       tab2?.classList.remove("move-off-Y");
       tab3?.classList.remove("move-off-Y");
+      tab4?.classList.remove("move-off-Y");
 
       tab1?.classList.add("move-off-X");
       tab2?.classList.add("move-off-X");
       tab3?.classList.add("move-off-X");
+      tab4?.classList.add("move-off-X");
     }
   };
 
@@ -91,6 +96,21 @@ const SideBar = () => {
       ) {
         tab3?.classList.toggle("move-off-Y");
       }
+      //Handles hiding InfoTab4 if InfoTab1 is visible
+      if (
+        tab4?.className.includes("move-off-X") != true &&
+        tab1?.className.includes("move-off-X") != true &&
+        !isWindowSmall
+      ) {
+        tab4?.classList.toggle("move-off-X");
+      }
+      if (
+        tab4?.className.includes("move-off-Y") != true &&
+        tab1?.className.includes("move-off-Y") != true &&
+        isWindowSmall
+      ) {
+        tab4?.classList.toggle("move-off-Y");
+      }
     } else if (onClickValue == "tab2" && tab2) {
       //Handles visibility for InfoTab2
       if (isWindowSmall) {
@@ -128,6 +148,21 @@ const SideBar = () => {
         isWindowSmall
       ) {
         tab3?.classList.toggle("move-off-Y");
+      }
+      //Handles hiding InfoTab4 if InfoTab2 is visible
+      if (
+        tab4?.className.includes("move-off-X") != true &&
+        tab2?.className.includes("move-off-X") != true &&
+        !isWindowSmall
+      ) {
+        tab4?.classList.toggle("move-off-X");
+      }
+      if (
+        tab4?.className.includes("move-off-Y") != true &&
+        tab2?.className.includes("move-off-Y") != true &&
+        isWindowSmall
+      ) {
+        tab4?.classList.toggle("move-off-Y");
       }
     } else if (onClickValue == "tab3" && tab3) {
       //Handles visibility for InfoTab3 - if tab3 is clicked
@@ -167,6 +202,74 @@ const SideBar = () => {
       ) {
         tab2?.classList.toggle("move-off-Y");
       }
+      //Handles hiding InfoTab4 if InfoTab3 is visible
+      if (
+        tab4?.className.includes("move-off-X") != true &&
+        tab3?.className.includes("move-off-X") != true &&
+        !isWindowSmall
+      ) {
+        tab4?.classList.toggle("move-off-X");
+      }
+      if (
+        tab4?.className.includes("move-off-Y") != true &&
+        tab3?.className.includes("move-off-Y") != true &&
+        isWindowSmall
+      ) {
+        tab4?.classList.toggle("move-off-Y");
+      }
+    } else if (onClickValue == "tab4" && tab4) {
+      //Handles visibility for InfoTab4 - if tab4 is clicked
+      if (isWindowSmall) {
+        //Changes to a vertical slide on smaller devices
+        tab4.classList.toggle("move-off-Y");
+      } else {
+        tab4.classList.toggle("move-off-X");
+      }
+      // Handles hiding InfoTab1 if InfoTab4 is visible
+      if (
+        tab1?.className.includes("move-off-X") != true &&
+        tab4?.className.includes("move-off-X") != true &&
+        !isWindowSmall
+      ) {
+        tab1?.classList.toggle("move-off-X");
+      }
+      if (
+        tab1?.className.includes("move-off-Y") != true &&
+        tab4?.className.includes("move-off-Y") != true &&
+        isWindowSmall
+      ) {
+        tab1?.classList.toggle("move-off-Y");
+      }
+      //Handles hiding InfoTab2 if InfoTab4 is visible
+      if (
+        tab2?.className.includes("move-off-X") != true &&
+        tab4?.className.includes("move-off-X") != true &&
+        !isWindowSmall
+      ) {
+        tab2?.classList.toggle("move-off-X");
+      }
+      if (
+        tab2?.className.includes("move-off-Y") != true &&
+        tab4?.className.includes("move-off-Y") != true &&
+        isWindowSmall
+      ) {
+        tab2?.classList.toggle("move-off-Y");
+      }
+      //Handles hiding InfoTab3 if InfoTab4 is visible
+      if (
+        tab3?.className.includes("move-off-X") != true &&
+        tab4?.className.includes("move-off-X") != true &&
+        !isWindowSmall
+      ) {
+        tab3?.classList.toggle("move-off-X");
+      }
+      if (
+        tab3?.className.includes("move-off-Y") != true &&
+        tab4?.className.includes("move-off-Y") != true &&
+        isWindowSmall
+      ) {
+        tab3?.classList.toggle("move-off-Y");
+      }
     }
 
     //Handles visibility for the time shifter
@@ -200,7 +303,12 @@ const SideBar = () => {
       />
       <Divider />
       <SideBarIcon
+        id="SBI_4"
         icon={<BsGearFill size="22" />}
+        onClickMethod={() => handleClick("tab4")}
+      />
+      <SideBarIcon
+        icon={<FaPoo size="20" />}
         onClickMethod={() => handleClick("timeShifter")}
       />
     </div>
