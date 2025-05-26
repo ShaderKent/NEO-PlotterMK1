@@ -44,8 +44,8 @@ function OrbitPlot({
   setPlanetData
 }: Props) {
   // Constants
-  const t = 2451545 * (24 * 60 * 60 * 1000); //January 1, 4713 BC ending on Jan 1 2000 at 12:00pm in seconds
-  const degToRad = Math.PI / 180;
+  // const t = 2451545 * (24 * 60 * 60 * 1000); //January 1, 4713 BC ending on Jan 1 2000 at 12:00pm in seconds
+  // const degToRad = Math.PI / 180;
   //State Variables
   const [traceArr, setTraceArr] = useState<Array<object>>([]);
   const [XYZNEO, setXYZNEO] = useState<Array<Array<number>>>([[0], [0], [0]]);
@@ -169,119 +169,119 @@ function OrbitPlot({
   };
 
   //Calculation of derived values
-  const getAdjustedT2 = (value: string, change: number, date: number) => {
-    const secondsSinceJ200 = date - t;
-    switch (value) {
-      case "day":
-        const timeChange = change * 24 * 60 * 60 * 1000;
-        return secondsSinceJ200 + timeChange;
-        break;
-      default:
-        break;
-    }
-  };
-  const calcAdjMeanAnomaly = (
-    Tx: number | undefined,
-    orbDat?: Orbital_Data
-  ) => {
-    if (orbDat && Tx) {
-      const Mx = (2 * Math.PI * (Tx - t)) / (orbDat?.T * 24 * 60 * 60 * 1000);
-      return Mx;
-    }
-  };
-  const calcTrueAnomaly = (Mx: number | undefined, orbDat?: Orbital_Data) => {
-    if (Mx && orbDat) {
-      // Mx = Mx * degToRad;
-      const v = Mx + 2 * orbDat?.e * Math.sin(Mx);
-      return v;
-    }
-  };
+  // const getAdjustedT2 = (value: string, change: number, date: number) => {
+  //   const secondsSinceJ200 = date - t;
+  //   switch (value) {
+  //     case "day":
+  //       const timeChange = change * 24 * 60 * 60 * 1000;
+  //       return secondsSinceJ200 + timeChange;
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // };
+  // const calcAdjMeanAnomaly = (
+  //   Tx: number | undefined,
+  //   orbDat?: Orbital_Data
+  // ) => {
+  //   if (orbDat && Tx) {
+  //     const Mx = (2 * Math.PI * (Tx - t)) / (orbDat?.T * 24 * 60 * 60 * 1000);
+  //     return Mx;
+  //   }
+  // };
+  // const calcTrueAnomaly = (Mx: number | undefined, orbDat?: Orbital_Data) => {
+  //   if (Mx && orbDat) {
+  //     // Mx = Mx * degToRad;
+  //     const v = Mx + 2 * orbDat?.e * Math.sin(Mx);
+  //     return v;
+  //   }
+  // };
 
-  const calcTrueAnomaly2 = (Mx: number | undefined, orbDat?: Orbital_Data) => {
-    if (Mx && orbDat) {
-      Mx = Mx * degToRad;
-      const e = Number(orbDat.e);
-      const i1 = 2 * e - e ** (3 / 4) * Math.sin(Mx);
-      const i2 = (5 / 4) * e ** 2 * Math.sin(2 * Mx);
-      const i3 = (13 / 12) * e ** 3 * Math.sin(3 * Mx);
-      const i4 = (103 / 96) * e ** 4 * Math.sin(4 * Mx);
-      const i5 = (1097 / 960) * e ** 5 * Math.sin(5 * Mx);
-      const v = Mx + (180 / Math.PI) * (i1 + i2 + i3 + i4 + i5);
-      return v; //Value in degrees
-    }
-  };
-  const calcMeanDistance = (orbDat?: Orbital_Data) => {
-    if (orbDat) {
-      const aX = orbDat.a / (1 - orbDat.e);
-      return aX; //Value is in A.U.   //NOT SURE IF THIS WORKS
-    }
-  };
+  // const calcTrueAnomaly2 = (Mx: number | undefined, orbDat?: Orbital_Data) => {
+  //   if (Mx && orbDat) {
+  //     Mx = Mx * degToRad;
+  //     const e = Number(orbDat.e);
+  //     const i1 = 2 * e - e ** (3 / 4) * Math.sin(Mx);
+  //     const i2 = (5 / 4) * e ** 2 * Math.sin(2 * Mx);
+  //     const i3 = (13 / 12) * e ** 3 * Math.sin(3 * Mx);
+  //     const i4 = (103 / 96) * e ** 4 * Math.sin(4 * Mx);
+  //     const i5 = (1097 / 960) * e ** 5 * Math.sin(5 * Mx);
+  //     const v = Mx + (180 / Math.PI) * (i1 + i2 + i3 + i4 + i5);
+  //     return v; //Value in degrees
+  //   }
+  // };
+  // const calcMeanDistance = (orbDat?: Orbital_Data) => {
+  //   if (orbDat) {
+  //     const aX = orbDat.a / (1 - orbDat.e);
+  //     return aX; //Value is in A.U.   //NOT SURE IF THIS WORKS
+  //   }
+  // };
 
-  const calcHelioDist = (
-    ax: number | undefined,
-    v: number | undefined,
-    orbDat?: Orbital_Data
-  ) => {
-    if (ax && v && orbDat) {
-      const r = (ax * (1 - orbDat.e ** 2)) / (1 + orbDat.e * Math.cos(v)); //Currently dont have Ex updated to use ax
-      return r; //Value is in A.U.
-    }
-  };
-  const calcXYZ = (
-    //Calculates the rectangular coordinates from angular coordinates
-    r: number | undefined,
-    v: number | undefined,
-    orbDat?: Orbital_Data
-  ) => {
-    if (r && v && orbDat) {
-      const o = Number(orbDat.o) * degToRad;
-      const p = Number(orbDat.p) * degToRad;
-      const i = Number(orbDat.i) * degToRad;
-      const x =
-        r *
-        (Math.cos(o) * Math.cos(v + p - o) -
-          Math.sin(o) * Math.sin(v + p - o) * Math.cos(i));
-      const y =
-        r *
-        (Math.sin(o) * Math.cos(v + p - o) +
-          Math.cos(o) * Math.sin(v + p - o) * Math.cos(i));
-      const z = r * (Math.sin(v + p - o) * Math.sin(i));
-      return [x, y, z]; //Value is in A.U.
-    }
-  };
+  // const calcHelioDist = (
+  //   ax: number | undefined,
+  //   v: number | undefined,
+  //   orbDat?: Orbital_Data
+  // ) => {
+  //   if (ax && v && orbDat) {
+  //     const r = (ax * (1 - orbDat.e ** 2)) / (1 + orbDat.e * Math.cos(v)); //Currently dont have Ex updated to use ax
+  //     return r; //Value is in A.U.
+  //   }
+  // };
+  // const calcXYZ = (
+  //   //Calculates the rectangular coordinates from angular coordinates
+  //   r: number | undefined,
+  //   v: number | undefined,
+  //   orbDat?: Orbital_Data
+  // ) => {
+  //   if (r && v && orbDat) {
+  //     const o = Number(orbDat.o) * degToRad;
+  //     const p = Number(orbDat.p) * degToRad;
+  //     const i = Number(orbDat.i) * degToRad;
+  //     const x =
+  //       r *
+  //       (Math.cos(o) * Math.cos(v + p - o) -
+  //         Math.sin(o) * Math.sin(v + p - o) * Math.cos(i));
+  //     const y =
+  //       r *
+  //       (Math.sin(o) * Math.cos(v + p - o) +
+  //         Math.cos(o) * Math.sin(v + p - o) * Math.cos(i));
+  //     const z = r * (Math.sin(v + p - o) * Math.sin(i));
+  //     return [x, y, z]; //Value is in A.U.
+  //   }
+  // };
 
   //Coordinate Generation Functions
-  const XYZFromOrbData = (orbDat?: Orbital_Data) => {
-    if (orbDat) {
-      let x = [];
-      let y = [];
-      let z = [];
-      for (let i = 0; i < orbDat.T + 10; i += 1) {
-        const Tx = getAdjustedT2("day", i, orbDat.date);
-        const Mx = calcAdjMeanAnomaly(Tx, orbDat);
-        const v = calcTrueAnomaly(Mx, orbDat);
-        const ax = calcMeanDistance(orbDat);
-        const rx = calcHelioDist(ax, v, orbDat);
-        const coordinatePoint = calcXYZ(rx, v, orbDat);
-        if (coordinatePoint) {
-          x.push(Number(coordinatePoint[0]));
-          y.push(Number(coordinatePoint[1]));
-          z.push(Number(coordinatePoint[2]));
-        }
-      }
-      return { x: x, y: y, z: z };
-    }
-  };
+  // const XYZFromOrbData = (orbDat?: Orbital_Data) => {
+  //   if (orbDat) {
+  //     let x = [];
+  //     let y = [];
+  //     let z = [];
+  //     for (let i = 0; i < orbDat.T + 10; i += 1) {
+  //       const Tx = getAdjustedT2("day", i, orbDat.date);
+  //       const Mx = calcAdjMeanAnomaly(Tx, orbDat);
+  //       const v = calcTrueAnomaly(Mx, orbDat);
+  //       const ax = calcMeanDistance(orbDat);
+  //       const rx = calcHelioDist(ax, v, orbDat);
+  //       const coordinatePoint = calcXYZ(rx, v, orbDat);
+  //       if (coordinatePoint) {
+  //         x.push(Number(coordinatePoint[0]));
+  //         y.push(Number(coordinatePoint[1]));
+  //         z.push(Number(coordinatePoint[2]));
+  //       }
+  //     }
+  //     return { x: x, y: y, z: z };
+  //   }
+  // };
 
-  const XYZForSpecificDate = (date: number, orbDat: Orbital_Data) => {
-    const Tx = Number(date);
-    const Mx = calcAdjMeanAnomaly(Tx, orbDat);
-    const v = calcTrueAnomaly(Mx, orbDat);
-    const a = calcMeanDistance(orbDat);
-    const r = calcHelioDist(a, v, orbDat);
-    const coordinatePoint = calcXYZ(r, v, orbDat);
-    return coordinatePoint;
-  };
+  // const XYZForSpecificDate = (date: number, orbDat: Orbital_Data) => {
+  //   const Tx = Number(date);
+  //   const Mx = calcAdjMeanAnomaly(Tx, orbDat);
+  //   const v = calcTrueAnomaly(Mx, orbDat);
+  //   const a = calcMeanDistance(orbDat);
+  //   const r = calcHelioDist(a, v, orbDat);
+  //   const coordinatePoint = calcXYZ(r, v, orbDat);
+  //   return coordinatePoint;
+  // };
 
   //   Coordinate Generation
   //   Traces

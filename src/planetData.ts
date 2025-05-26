@@ -1,6 +1,5 @@
 import type { Orbital_Data } from "./types";
 const degToRad = Math.PI / 180;
-const unixEpoch = 946684800 * 1000; //Seconds from J1 1970 TO J1 2000
 const t = 2451545 * (24 * 60 * 60 * 1000); //January 1, 4713 BC ending on Jan 1 2000 at 12:00pm in seconds
 
 

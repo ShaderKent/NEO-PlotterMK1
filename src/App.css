@@ -23,7 +23,6 @@
   color: oklch(62.7% 0.194 149.214);
   @apply hover:text-white hover:bg-green-600
 }
-
 .SBI_1_On_Click {
   background-color: green;
 }

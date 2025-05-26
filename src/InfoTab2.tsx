@@ -6,8 +6,6 @@ interface InfoTab2Props {
 }
 
 function InfoTab3({ orbitingBodyArr }: InfoTab2Props) {
-  const unixEpoch = 946684800 * 1000; //Seconds from J1 1970 TO J1 2000
-
   return (
     <>
       <div className="static w-1/3 h-full">
