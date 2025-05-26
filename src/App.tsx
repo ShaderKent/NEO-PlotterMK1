@@ -204,7 +204,7 @@ function App() {
       />
       <InfoTab2 orbitingBodyArr={orbitingBodyArr} />
       <InfoTab3 orbitingBodyArr={orbitingBodyArr} />
-      <InfoTab4 />
+      <InfoTab4 planetData={planetData} setPlanetData={setPlanetData} />
       <TimeShifter
         requestedOrbitTime={requestedOrbitTime}
         setRequestedOrbitTime={setRequestedOrbitTime}
