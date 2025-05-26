@@ -23,6 +23,7 @@ function InfoTab1({
   orbitingBodyArr
 }: InfoTab1Props) {
   //Constants
+  const unixEpoch = 946684800 * 1000; //Seconds from J1 1970 TO J1 2000
   const dropDownTop = document.getElementById("dropDownTop");
 
   const getFormattedCurrentDate = () => {
@@ -42,7 +43,7 @@ function InfoTab1({
     setSelectedDate(event.target.value);
     setAPI_Request_Date(event.target.value);
     //Sets the requested Time to Midnight of the requested day
-    setRequestedOrbitTime(Date.parse(event.target.value));
+    setRequestedOrbitTime(Date.parse(event.target.value) - unixEpoch);
   };
 
   const handleClickDropDown = () => {
@@ -58,7 +59,7 @@ function InfoTab1({
     setRequestedOrbitTime(
       Date.parse(
         dropDownListItem.close_approach_data[0].close_approach_date_full
-      )
+      ) - unixEpoch
       // / (24 * 60 * 60)
     );
     dropDownTop?.classList.toggle("hidden");

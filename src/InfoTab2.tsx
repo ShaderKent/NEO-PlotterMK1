@@ -6,6 +6,8 @@ interface InfoTab2Props {
 }
 
 function InfoTab3({ orbitingBodyArr }: InfoTab2Props) {
+  const unixEpoch = 946684800 * 1000; //Seconds from J1 1970 TO J1 2000
+
   return (
     <>
       <div className="static w-1/3 h-full">
@@ -51,9 +53,10 @@ function InfoTab3({ orbitingBodyArr }: InfoTab2Props) {
                 type="tab2"
               />
               <StatDisplay
-                title="Perihelion distance (q)"
+                title="perihelion passage"
                 value={
-                  String(orbitingBodyArr[0].orbitalData.a.toFixed(7)) + " A.U"
+                  orbitingBodyArr[0].orbitalData.date / (24 * 60 * 60 * 1000) +
+                  " J.D."
                 }
                 type="tab2"
               />

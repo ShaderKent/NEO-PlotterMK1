@@ -15,6 +15,7 @@ function TimeShifter({
   requestedOrbitTime,
   setRequestedOrbitTime
 }: TimeShifterProps) {
+  const unixEpoch = 946684800 * 1000; //Seconds from J1 1970 TO J1 2000
   const formatTime = (time: number) => {
     return new Date(time).toISOString().substring(0, 19);
   };
@@ -59,19 +60,25 @@ function TimeShifter({
     <div className="static">
       <div
         id="timeShifter"
-        className="absolute bottom-5 left-15 md:w-1/4 h-5 md:h-1/8 border-2 rounded-md transition-all duration-1000 z-10 bg-gray-200"
+        className="absolute bottom-12 left-15 md:w-1/4 h-5 md:h-1/8 border-2 rounded-md transition-all duration-1000 z-10 bg-gray-200"
       >
         {requestedOrbitTime ? (
           <>
             <div className="flex flex-row ml-3">
               <StatDisplay
                 title="Date: "
-                value={formatTime(requestedOrbitTime).substring(0, 10)}
+                value={formatTime(requestedOrbitTime + unixEpoch).substring(
+                  0,
+                  10
+                )}
                 type="tab3"
               />
               <StatDisplay
                 title="Time: "
-                value={formatTime(requestedOrbitTime).substring(11, 16)}
+                value={formatTime(requestedOrbitTime + unixEpoch).substring(
+                  11,
+                  16
+                )}
                 type="tab3"
               />
             </div>

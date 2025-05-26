@@ -82,13 +82,13 @@ export interface OrbitXYZ {
   }
 export interface OrbitingBody {
     id: Number;
-    name: String;
-    OrbitingBody: String;
+    name: string;
+    OrbitingBody: string;
     hazard: Boolean;
     orbitalPeriod: Number; //days
     closeApproachDistance: Number; //km
     closeApproachRelSpeed: Number; //km/s
-    closeApproachDate: String;
+    closeApproachDate: string;
     closeApproachEpochDate: Number;
     EstDiameterMin: Number; //meters
     EstDiameterMax: Number; //meters
