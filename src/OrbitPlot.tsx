@@ -69,6 +69,105 @@ function OrbitPlot({
   // Style Constants
   const bg_gray_800 = "#1e2939";
 
+  //New Calcs
+  const calcPerifocalPosition = (orbDat: Orbital_Data, index: number) => {
+    const rx =
+      orbDat.a /
+      (1 - orbDat.e * orbDat.e) /
+      (1 + orbDat.e * Math.cos(((2 * Math.PI) / 360) * index));
+    return rx;
+  };
+
+  const calcPerifocalPositionAtDate = (orbDat: Orbital_Data, date: number) => {
+    const remainingOrbitArc =
+      ((date - orbDat.date) / (24 * 60 * 60 * 1000)) % orbDat.T;
+    console.log("remainingOrbArc: ", remainingOrbitArc);
+    const rx =
+      orbDat.a /
+      (1 - orbDat.e * orbDat.e) /
+      (1 +
+        orbDat.e *
+          Math.cos(
+            ((2 * Math.PI) / orbDat.T) * (orbDat.T - remainingOrbitArc)
+          ));
+    return [rx, remainingOrbitArc];
+  };
+
+  const calc2DxyEllipse = (rx: number, index: number) => {
+    const x = rx * Math.cos(((2 * Math.PI) / 360) * index);
+    const y = rx * Math.sin(((2 * Math.PI) / 360) * index);
+    return [x, y];
+  };
+
+  const calc2DxyEllipsePoint = (
+    rx: number,
+    remainingOrbArc: number,
+    orbDat: Orbital_Data
+  ) => {
+    const x =
+      rx * Math.cos(((2 * Math.PI) / orbDat.T) * (orbDat.T - remainingOrbArc));
+    const y =
+      rx * Math.sin(((2 * Math.PI) / orbDat.T) * (orbDat.T - remainingOrbArc));
+    return [x, y];
+  };
+
+  const calc3DEllipseFrom2D = (array2d: number[], orbDat: Orbital_Data) => {
+    const x =
+      array2d[0] *
+        (Math.cos(orbDat.p) * Math.cos(orbDat.o) -
+          Math.sin(orbDat.p) * Math.cos(orbDat.i) * Math.sin(orbDat.o)) -
+      array2d[1] *
+        (Math.sin(orbDat.p) * Math.cos(orbDat.o) +
+          Math.cos(orbDat.p) * Math.cos(orbDat.i) * Math.sin(orbDat.o));
+    const y =
+      array2d[0] *
+        (Math.cos(orbDat.p) * Math.sin(orbDat.o) +
+          Math.sin(orbDat.p) * Math.cos(orbDat.i) * Math.cos(orbDat.o)) +
+      array2d[1] *
+        (Math.cos(orbDat.p) * Math.cos(orbDat.i) * Math.cos(orbDat.o) -
+          Math.sin(orbDat.p) * Math.sin(orbDat.o));
+    const z =
+      array2d[0] * (Math.sin(orbDat.p) * Math.sin(orbDat.i)) +
+      array2d[1] * (Math.cos(orbDat.p) * Math.sin(orbDat.i));
+    return [x, y, z];
+  };
+
+  const XYZNewOrbDatCalc = (orbDat?: Orbital_Data) => {
+    if (orbDat) {
+      let x = [];
+      let y = [];
+      let z = [];
+      for (let i = 0; i < 380; i += 1) {
+        const rx = calcPerifocalPosition(orbDat, i);
+        const ellipsePoint2d = calc2DxyEllipse(rx, i);
+        const coordinatePoint = calc3DEllipseFrom2D(ellipsePoint2d, orbDat);
+        if (coordinatePoint) {
+          x.push(Number(coordinatePoint[0]));
+          y.push(Number(coordinatePoint[1]));
+          z.push(Number(coordinatePoint[2]));
+        }
+      }
+      return { x: x, y: y, z: z };
+    }
+  };
+
+  const XYZNewPointCalc = (date: number, orbDat?: Orbital_Data) => {
+    if (orbDat) {
+      const rxAndRadRemainingArr = calcPerifocalPositionAtDate(orbDat, date);
+      const ellipsePoint2d = calc2DxyEllipsePoint(
+        rxAndRadRemainingArr[0],
+        rxAndRadRemainingArr[1],
+        orbDat
+      );
+      const coordinatePoint = calc3DEllipseFrom2D(ellipsePoint2d, orbDat);
+      return {
+        x: coordinatePoint[0],
+        y: coordinatePoint[1],
+        z: coordinatePoint[2]
+      };
+    }
+  };
+
   //Calculation of derived values
   const getAdjustedT2 = (value: string, change: number, date: number) => {
     const secondsSinceJ200 = date - t;
@@ -92,23 +191,25 @@ function OrbitPlot({
   };
   const calcTrueAnomaly = (Mx: number | undefined, orbDat?: Orbital_Data) => {
     if (Mx && orbDat) {
+      // Mx = Mx * degToRad;
       const v = Mx + 2 * orbDat?.e * Math.sin(Mx);
       return v;
     }
   };
 
-  // const calcTrueAnomaly2 = (Mx: number | undefined, orbDat?: Orbital_Data) => {
-  //   if (Mx && orbDat) {
-  //     const e = Number(orbDat.e);
-  //     const i1 = 2 * e - e ** (3 / 4) * Math.sin(Mx);
-  //     const i2 = (5 / 4) * e ** 2 * Math.sin(2 * Mx);
-  //     const i3 = (13 / 12) * e ** 3 * Math.sin(3 * Mx);
-  //     const i4 = (103 / 96) * e ** 4 * Math.sin(4 * Mx);
-  //     const i5 = (1097 / 960) * e ** 5 * Math.sin(5 * Mx);
-  //     const v = Mx + (180 / Math.PI) * (i1 + i2 + i3 + i4 + i5);
-  //     return v; //Value in degrees
-  //   }
-  // };
+  const calcTrueAnomaly2 = (Mx: number | undefined, orbDat?: Orbital_Data) => {
+    if (Mx && orbDat) {
+      Mx = Mx * degToRad;
+      const e = Number(orbDat.e);
+      const i1 = 2 * e - e ** (3 / 4) * Math.sin(Mx);
+      const i2 = (5 / 4) * e ** 2 * Math.sin(2 * Mx);
+      const i3 = (13 / 12) * e ** 3 * Math.sin(3 * Mx);
+      const i4 = (103 / 96) * e ** 4 * Math.sin(4 * Mx);
+      const i5 = (1097 / 960) * e ** 5 * Math.sin(5 * Mx);
+      const v = Mx + (180 / Math.PI) * (i1 + i2 + i3 + i4 + i5);
+      return v; //Value in degrees
+    }
+  };
   const calcMeanDistance = (orbDat?: Orbital_Data) => {
     if (orbDat) {
       const aX = orbDat.a / (1 - orbDat.e);
@@ -184,6 +285,22 @@ function OrbitPlot({
 
   //   Coordinate Generation
   //   Traces
+  // useEffect(() => {
+  //   console.log("Trace Generating useEffect triggered: Top");
+  //   //If API requests have resolved: calculate trace data and immutably update the OrbitingBody.orbit data.
+  //   if (isLoaded1) {
+  //     console.log("Trace Generating useEffect triggered: isLoaded1 loop");
+  //     let copyOrbBodyArr = orbitingBodyArr?.slice();
+  //     copyOrbBodyArr?.forEach((body) => {
+  //       body.orbitalData.orbit = XYZFromOrbData(body?.orbitalData);
+  //     });
+  //     setOrbitingBodyArr(copyOrbBodyArr);
+  //     console.log(copyOrbBodyArr[0]);
+  //     //Update conditional rendering of the Plot
+  //     setIsLoaded2(true);
+  //   }
+  // }, [isLoaded1]); //Dependent on API ID response completion
+
   useEffect(() => {
     console.log("Trace Generating useEffect triggered: Top");
     //If API requests have resolved: calculate trace data and immutably update the OrbitingBody.orbit data.
@@ -191,7 +308,7 @@ function OrbitPlot({
       console.log("Trace Generating useEffect triggered: isLoaded1 loop");
       let copyOrbBodyArr = orbitingBodyArr?.slice();
       copyOrbBodyArr?.forEach((body) => {
-        body.orbitalData.orbit = XYZFromOrbData(body?.orbitalData);
+        body.orbitalData.orbit = XYZNewOrbDatCalc(body?.orbitalData);
       });
       setOrbitingBodyArr(copyOrbBodyArr);
       console.log(copyOrbBodyArr[0]);
@@ -204,7 +321,7 @@ function OrbitPlot({
   useEffect(() => {
     console.log("earthXYZ and EarthTrace useEffect: none");
     if (planetData.planets[0] && planetData.display.mercury == true) {
-      const mercuryTraceData = XYZFromOrbData(planetData.planets[0]);
+      const mercuryTraceData = XYZNewOrbDatCalc(planetData.planets[0]);
       setPlanetData({
         ...planetData,
         planets: [
@@ -212,16 +329,19 @@ function OrbitPlot({
           (planetData.planets[0].orbit = mercuryTraceData)
         ]
       });
-      const mercuryXYZ = XYZForSpecificDate(
+      const mercuryXYZ = XYZNewPointCalc(
         requestedOrbitTime,
         planetData.planets[0]
       );
+      // if (mercuryXYZ) {
+      //   setXYZMercury([[mercuryXYZ[0]], [mercuryXYZ[1]], [mercuryXYZ[2]]]);
+      // }
       if (mercuryXYZ) {
-        setXYZMercury([[mercuryXYZ[0]], [mercuryXYZ[1]], [mercuryXYZ[2]]]);
+        setXYZMercury([[mercuryXYZ.x], [mercuryXYZ.y], [mercuryXYZ.z]]);
       }
     }
     if (planetData.planets[1] && planetData.display.venus == true) {
-      const venusTraceData = XYZFromOrbData(planetData.planets[1]);
+      const venusTraceData = XYZNewOrbDatCalc(planetData.planets[1]);
       setPlanetData({
         ...planetData,
         planets: [
@@ -229,16 +349,19 @@ function OrbitPlot({
           (planetData.planets[1].orbit = venusTraceData)
         ]
       });
-      const venusXYZ = XYZForSpecificDate(
+      const venusXYZ = XYZNewPointCalc(
         requestedOrbitTime,
         planetData.planets[1]
       );
+      // if (venusXYZ) {
+      //   setXYZVenus([[venusXYZ[0]], [venusXYZ[1]], [venusXYZ[2]]]);
+      // }
       if (venusXYZ) {
-        setXYZVenus([[venusXYZ[0]], [venusXYZ[1]], [venusXYZ[2]]]);
+        setXYZVenus([[venusXYZ.x], [venusXYZ.y], [venusXYZ.z]]);
       }
     }
     if (planetData.planets[2] && planetData.display.earth == true) {
-      const earthTraceData = XYZFromOrbData(planetData.planets[2]);
+      const earthTraceData = XYZNewOrbDatCalc(planetData.planets[2]);
       setPlanetData({
         ...planetData,
         planets: [
@@ -246,16 +369,19 @@ function OrbitPlot({
           (planetData.planets[2].orbit = earthTraceData)
         ]
       });
-      const earthXYZ = XYZForSpecificDate(
+      const earthXYZ = XYZNewPointCalc(
         requestedOrbitTime,
         planetData.planets[2]
       );
+      // if (earthXYZ) {
+      //   setXYZEarth([[earthXYZ[0]], [earthXYZ[1]], [earthXYZ[2]]]);
+      // }
       if (earthXYZ) {
-        setXYZEarth([[earthXYZ[0]], [earthXYZ[1]], [earthXYZ[2]]]);
+        setXYZEarth([[earthXYZ.x], [earthXYZ.y], [earthXYZ.z]]);
       }
     }
     if (planetData.planets[3] && planetData.display.mars == true) {
-      const marsTraceData = XYZFromOrbData(planetData.planets[3]);
+      const marsTraceData = XYZNewOrbDatCalc(planetData.planets[3]);
       setPlanetData({
         ...planetData,
         planets: [
@@ -263,12 +389,15 @@ function OrbitPlot({
           (planetData.planets[3].orbit = marsTraceData)
         ]
       });
-      const marsXYZ = XYZForSpecificDate(
+      const marsXYZ = XYZNewPointCalc(
         requestedOrbitTime,
         planetData.planets[3]
       );
+      // if (marsXYZ) {
+      //   setXYZMars([[marsXYZ[0]], [marsXYZ[1]], [marsXYZ[2]]]);
+      // }
       if (marsXYZ) {
-        setXYZMars([[marsXYZ[0]], [marsXYZ[1]], [marsXYZ[2]]]);
+        setXYZMars([[marsXYZ.x], [marsXYZ.y], [marsXYZ.z]]);
       }
     }
   }, []); //runs once on mount
@@ -284,12 +413,19 @@ function OrbitPlot({
     );
     if (isLoaded1) {
       console.log("Arrived at NEO");
-      const NEOXYZ = XYZForSpecificDate(
+      const NEOXYZ = XYZNewPointCalc(
         requestedOrbitTime,
         orbitingBodyArr[0].orbitalData
       );
+      // const NEOXYZ = XYZForSpecificDate(
+      //   requestedOrbitTime,
+      //   orbitingBodyArr[0].orbitalData
+      // );
+      // if (NEOXYZ) {
+      //   setXYZNEO([[NEOXYZ[0]], [NEOXYZ[1]], [NEOXYZ[2]]]);
+      // }
       if (NEOXYZ) {
-        setXYZNEO([[NEOXYZ[0]], [NEOXYZ[1]], [NEOXYZ[2]]]);
+        setXYZNEO([[NEOXYZ.x], [NEOXYZ.y], [NEOXYZ.z]]);
       }
     }
   }, [isLoaded1, requestedOrbitTime]); //Dependent on API ID response completion and requestedOrbitTime change
@@ -297,39 +433,51 @@ function OrbitPlot({
   // Earth Coordinate
   useEffect(() => {
     if (planetData.display.mercury == true) {
-      const mercuryXYZ = XYZForSpecificDate(
+      const mercuryXYZ = XYZNewPointCalc(
         requestedOrbitTime,
         planetData.planets[0]
       );
+      // if (mercuryXYZ) {
+      //   setXYZMercury([[mercuryXYZ[0]], [mercuryXYZ[1]], [mercuryXYZ[2]]]);
+      // }
       if (mercuryXYZ) {
-        setXYZMercury([[mercuryXYZ[0]], [mercuryXYZ[1]], [mercuryXYZ[2]]]);
+        setXYZMercury([[mercuryXYZ.x], [mercuryXYZ.y], [mercuryXYZ.z]]);
       }
     }
     if (planetData.display.venus == true) {
-      const venusXYZ = XYZForSpecificDate(
+      const venusXYZ = XYZNewPointCalc(
         requestedOrbitTime,
         planetData.planets[1]
       );
+      // if (venusXYZ) {
+      //   setXYZVenus([[venusXYZ[0]], [venusXYZ[1]], [venusXYZ[2]]]);
+      // }
       if (venusXYZ) {
-        setXYZVenus([[venusXYZ[0]], [venusXYZ[1]], [venusXYZ[2]]]);
+        setXYZVenus([[venusXYZ.x], [venusXYZ.y], [venusXYZ.z]]);
       }
     }
     if (planetData.display.earth == true) {
-      const earthXYZ = XYZForSpecificDate(
+      const earthXYZ = XYZNewPointCalc(
         requestedOrbitTime,
         planetData.planets[2]
       );
+      // if (earthXYZ) {
+      //   setXYZEarth([[earthXYZ[0]], [earthXYZ[1]], [earthXYZ[2]]]);
+      // }
       if (earthXYZ) {
-        setXYZEarth([[earthXYZ[0]], [earthXYZ[1]], [earthXYZ[2]]]);
+        setXYZEarth([[earthXYZ.x], [earthXYZ.y], [earthXYZ.z]]);
       }
     }
     if (planetData.display.mars == true) {
-      const marsXYZ = XYZForSpecificDate(
+      const marsXYZ = XYZNewPointCalc(
         requestedOrbitTime,
         planetData.planets[3]
       );
+      // if (marsXYZ) {
+      //   setXYZMars([[marsXYZ[0]], [marsXYZ[1]], [marsXYZ[2]]]);
+      // }
       if (marsXYZ) {
-        setXYZMars([[marsXYZ[0]], [marsXYZ[1]], [marsXYZ[2]]]);
+        setXYZMars([[marsXYZ.x], [marsXYZ.y], [marsXYZ.z]]);
       }
     }
   }, [requestedOrbitTime]); //dependent upon requestedOrbitTime change
@@ -510,15 +658,15 @@ function OrbitPlot({
               },
               scene: {
                 xaxis: {
-                  range: [-4.0, 4.0],
+                  range: [-3.0, 3.0],
                   color: "#fff"
                 },
                 yaxis: {
-                  range: [-4.0, 4.0],
+                  range: [-3.0, 3.0],
                   color: "#fff"
                 },
                 zaxis: {
-                  range: [-4.0, 4.0],
+                  range: [-3.0, 3.0],
                   color: "#fff"
                 },
                 aspectratio: {

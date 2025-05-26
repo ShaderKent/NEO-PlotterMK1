@@ -9,7 +9,6 @@ import InfoTab3 from "./InfoTab3";
 import TitleBar from "./TitleBar";
 import TimeShifter from "./TimeShifter";
 
-import planetData from "./planetData";
 import type {
   API_Response_List_Data,
   NEO_JSON_Object,
@@ -23,8 +22,10 @@ import InfoTab4 from "./InfoTab4";
 function App() {
   const today = new Date();
   const todayUTC = Date.parse(today.toISOString()); //Date today since UTC Epoch (J1 1970)
-  const unixEpoch = 946684800; //Seconds from J1 1970 TO J1 2000
+  const unixEpoch = 946684800 * 1000; //Seconds from J1 1970 TO J1 2000
   const todayAdjustedToJ2000 = todayUTC - unixEpoch; //Convert todays date to J2000 format (seconds)
+  const degToRad = Math.PI / 180;
+  const t = 2451545 * (24 * 60 * 60 * 1000); //January 1, 4713 BC ending on Jan 1 2000 at 12:00pm in seconds
 
   // State management
 
@@ -34,12 +35,14 @@ function App() {
   const [API_Request_Date, setAPI_Request_Date] = useState<string>(
     today.toISOString().substring(0, 10)
   );
-  const [API_Request_Id, setAPI_Request_Id] = useState<Number>(3542517); //3542517
+  const [API_Request_Id, setAPI_Request_Id] = useState<number>(3542517); //3542517
   const [API_NEO_List, setAPI_NEO_List] = useState<API_Response_List_Data[]>(
     []
   );
   const [requestedOrbitTime, setRequestedOrbitTime] =
     useState<number>(todayAdjustedToJ2000);
+
+  console.log("Today adjusted to j2000", todayAdjustedToJ2000);
   //Orbital Data
   const [orbitingBodyArr, setOrbitingBodyArr] = useState<OrbitingBody[]>([]); //Vestigial as array (currently)
   const [planetData, setPlanetData] = useState<{
@@ -122,13 +125,14 @@ function App() {
       firstObservation: String(data.orbital_data.first_observation_date),
       lastObservation: String(data.orbital_data.last_observation_date),
       orbitalData: {
-        date: Number(data.orbital_data.perihelion_time) * (24 * 60 * 60 * 1000), //Converted to j2000 time in milliseconds
+        date:
+          Number(data.orbital_data.perihelion_time) * (24 * 60 * 60 * 1000) - t, //Converted to j2000 time in milliseconds
         M: Number(data.orbital_data.mean_anomaly),
         e: Number(data.orbital_data.eccentricity),
         a: Number(data.orbital_data.semi_major_axis),
-        o: Number(data.orbital_data.ascending_node_longitude),
-        i: Number(data.orbital_data.inclination),
-        p: Number(data.orbital_data.perihelion_argument),
+        o: Number(data.orbital_data.ascending_node_longitude) * degToRad,
+        i: Number(data.orbital_data.inclination) * degToRad,
+        p: Number(data.orbital_data.perihelion_argument) * degToRad,
         T: Number(data.orbital_data.orbital_period)
       }
     };
@@ -203,7 +207,13 @@ function App() {
         orbitingBodyArr={orbitingBodyArr}
       />
       <InfoTab2 orbitingBodyArr={orbitingBodyArr} />
-      <InfoTab3 orbitingBodyArr={orbitingBodyArr} />
+      <InfoTab3
+        orbitingBodyArr={orbitingBodyArr}
+        requestedOrbitTime={requestedOrbitTime}
+        setRequestedOrbitTime={setRequestedOrbitTime}
+        API_Request_Id={API_Request_Id}
+        API_Request_Date={API_Request_Date}
+      />
       <InfoTab4 planetData={planetData} setPlanetData={setPlanetData} />
       <TimeShifter
         requestedOrbitTime={requestedOrbitTime}

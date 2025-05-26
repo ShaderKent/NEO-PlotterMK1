@@ -1,4 +1,4 @@
-import SliderOn from "./Slider";
+import SliderOn from "./SliderOn";
 import type { Orbital_Data, PlanetDisplay } from "./types";
 
 interface InfoTab4Props {
@@ -42,7 +42,7 @@ function InfoTab4({ planetData, setPlanetData }: InfoTab4Props) {
                 );
               }}
             >
-              <SliderOn id="toggle1" />
+              <SliderOn id="tab4Toggle1" />
             </div>
           </div>
           <div className="flex p-2">
@@ -70,7 +70,7 @@ function InfoTab4({ planetData, setPlanetData }: InfoTab4Props) {
                 );
               }}
             >
-              <SliderOn id="toggle2" />
+              <SliderOn id="tab4Toggle2" />
             </div>
           </div>
           <div className="flex p-2">
@@ -98,7 +98,7 @@ function InfoTab4({ planetData, setPlanetData }: InfoTab4Props) {
                 );
               }}
             >
-              <SliderOn id="toggle3" />
+              <SliderOn id="tab4Toggle3" />
             </div>
           </div>
           <div className="flex p-2">
@@ -125,7 +125,7 @@ function InfoTab4({ planetData, setPlanetData }: InfoTab4Props) {
                 );
               }}
             >
-              <SliderOn id="toggle4" />
+              <SliderOn id="tab4Toggle4" />
             </div>
           </div>
         </div>
