@@ -47,6 +47,7 @@ function OrbitPlot({
   const t = 2451545 * (24 * 60 * 60 * 1000); //January 1, 4713 BC ending on Jan 1 2000 at 12:00pm in seconds
   const degToRad = Math.PI / 180;
   //State Variables
+  const [traceArr, setTraceArr] = useState<Array<object>>([]);
   const [XYZNEO, setXYZNEO] = useState<Array<Array<number>>>([[0], [0], [0]]);
   const [XYZMercury, setXYZMercury] = useState<Array<Array<number>>>([
     [0],
@@ -441,12 +442,32 @@ function OrbitPlot({
   };
 
   //Plotly Trace/Data Array
-  const traceArr: Array<object> = [NEOtrace, NEOMarker, sunMarker];
+  useEffect(() => {
+    setTraceArr([
+      NEOtrace,
+      NEOMarker,
+      sunMarker,
+      mercuryTrace,
+      mercuryMarker,
+      venusTrace,
+      venusMarker,
+      earthTrace,
+      earthMarker,
+      marsTrace,
+      marsMarker
+    ]);
+  }, [isLoaded2]); //Waits for calculations to complete
 
-  if (planetData.display.mercury) traceArr.push(mercuryTrace, mercuryMarker);
-  if (planetData.display.venus) traceArr.push(venusTrace, venusMarker);
-  if (planetData.display.earth) traceArr.push(earthTrace, earthMarker);
-  if (planetData.display.mars) traceArr.push(marsTrace, marsMarker);
+  // Updates the traceArr to whatever is currently listed as displayed
+  useEffect(() => {
+    const tempTraceArray = [NEOtrace, NEOMarker, sunMarker];
+    if (planetData.display.mercury)
+      tempTraceArray.push(mercuryTrace, mercuryMarker);
+    if (planetData.display.venus) tempTraceArray.push(venusTrace, venusMarker);
+    if (planetData.display.earth) tempTraceArray.push(earthTrace, earthMarker);
+    if (planetData.display.mars) tempTraceArray.push(marsTrace, marsMarker);
+    setTraceArr(tempTraceArray);
+  }, [planetData.display, requestedOrbitTime]);
 
   return (
     <div className="bg-gray-900 static">
