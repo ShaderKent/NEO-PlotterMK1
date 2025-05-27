@@ -68,7 +68,29 @@ function OrbitPlot({
 
   // Style Constants
   const bg_gray_800 = "#1e2939";
-
+  // const calcAdjMeanAnomaly = (
+  //   Tx: number | undefined,
+  //   orbDat?: Orbital_Data
+  // ) => {
+  //   if (orbDat && Tx) {
+  //     const Mx = (2 * Math.PI * (Tx - t)) / (orbDat?.T * 24 * 60 * 60 * 1000);
+  //     return Mx;
+  //   }
+  // };
+  const calcAdjMeanAnomaly = (date: number, orbDat: Orbital_Data) => {
+    if (orbDat) {
+      const Mx =
+        (2 * Math.PI * (date - orbDat.date)) / (orbDat.T * 24 * 60 * 60 * 1000);
+      return Mx;
+    }
+  };
+  const calcTrueAnomaly = (Mx?: number, orbDat?: Orbital_Data) => {
+    if (Mx && orbDat) {
+      // Mx = Mx * degToRad;
+      const v = Mx + 2 * orbDat.e * Math.sin(Mx);
+      return v;
+    }
+  };
   //New Calcs
   const calcPerifocalPosition = (orbDat: Orbital_Data, index: number) => {
     const rx =
@@ -78,19 +100,23 @@ function OrbitPlot({
     return rx;
   };
 
-  const calcPerifocalPositionAtDate = (orbDat: Orbital_Data, date: number) => {
-    const remainingOrbitArc =
-      ((date - orbDat.date) / (24 * 60 * 60 * 1000)) % orbDat.T;
-    console.log("remainingOrbArc: ", remainingOrbitArc);
-    const rx =
-      orbDat.a /
-      (1 - orbDat.e * orbDat.e) /
-      (1 +
-        orbDat.e *
-          Math.cos(
-            ((2 * Math.PI) / orbDat.T) * (orbDat.T - remainingOrbitArc)
-          ));
-    return [rx, remainingOrbitArc];
+  // const calcPerifocalPositionAtDate = (orbDat: Orbital_Data, date: number) => {
+  //   const remainingOrbitArc =
+  //     ((date - orbDat.date) / (24 * 60 * 60 * 1000)) % orbDat.T;
+  //   console.log("remainingOrbArc: ", remainingOrbitArc);
+  //   const rx =
+  //     orbDat.a /
+  //     (1 - orbDat.e * orbDat.e) /
+  //     (1 + orbDat.e * Math.cos(((2 * Math.PI) / orbDat.T) * remainingOrbitArc));
+  //   return [rx, remainingOrbitArc];
+  // };
+
+  const calcPerifocalPositionAtDate2 = (v?: number, orbDat?: Orbital_Data) => {
+    if (orbDat && v) {
+      const rx =
+        orbDat.a / (1 - orbDat.e * orbDat.e) / (1 + orbDat.e * Math.cos(v));
+      return rx;
+    }
   };
 
   const calc2DxyEllipse = (rx: number, index: number) => {
@@ -99,37 +125,45 @@ function OrbitPlot({
     return [x, y];
   };
 
-  const calc2DxyEllipsePoint = (
-    rx: number,
-    remainingOrbArc: number,
-    orbDat: Orbital_Data
-  ) => {
-    const x =
-      rx * Math.cos(((2 * Math.PI) / orbDat.T) * (orbDat.T - remainingOrbArc));
-    const y =
-      rx * Math.sin(((2 * Math.PI) / orbDat.T) * (orbDat.T - remainingOrbArc));
-    return [x, y];
+  // const calc2DxyEllipsePoint = (
+  //   rx: number,
+  //   remainingOrbArc: number = 1,
+  //   orbDat: Orbital_Data
+  // ) => {
+  //   const x = rx * Math.cos(((2 * Math.PI) / orbDat.T) * remainingOrbArc);
+  //   const y = rx * Math.sin(((2 * Math.PI) / orbDat.T) * remainingOrbArc);
+  //   return [x, y];
+  // };
+
+  const calc2DxyEllipsePoint2 = (rx?: number, v?: number) => {
+    if (rx && v) {
+      const x = rx * Math.cos(v);
+      const y = rx * Math.sin(v);
+      return [x, y];
+    }
   };
 
-  const calc3DEllipseFrom2D = (array2d: number[], orbDat: Orbital_Data) => {
-    const x =
-      array2d[0] *
-        (Math.cos(orbDat.p) * Math.cos(orbDat.o) -
-          Math.sin(orbDat.p) * Math.cos(orbDat.i) * Math.sin(orbDat.o)) -
-      array2d[1] *
-        (Math.sin(orbDat.p) * Math.cos(orbDat.o) +
-          Math.cos(orbDat.p) * Math.cos(orbDat.i) * Math.sin(orbDat.o));
-    const y =
-      array2d[0] *
-        (Math.cos(orbDat.p) * Math.sin(orbDat.o) +
-          Math.sin(orbDat.p) * Math.cos(orbDat.i) * Math.cos(orbDat.o)) +
-      array2d[1] *
-        (Math.cos(orbDat.p) * Math.cos(orbDat.i) * Math.cos(orbDat.o) -
-          Math.sin(orbDat.p) * Math.sin(orbDat.o));
-    const z =
-      array2d[0] * (Math.sin(orbDat.p) * Math.sin(orbDat.i)) +
-      array2d[1] * (Math.cos(orbDat.p) * Math.sin(orbDat.i));
-    return [x, y, z];
+  const calc3DEllipseFrom2D = (array2d?: number[], orbDat?: Orbital_Data) => {
+    if (array2d && orbDat) {
+      const x =
+        array2d[0] *
+          (Math.cos(orbDat.p) * Math.cos(orbDat.o) -
+            Math.sin(orbDat.p) * Math.cos(orbDat.i) * Math.sin(orbDat.o)) -
+        array2d[1] *
+          (Math.sin(orbDat.p) * Math.cos(orbDat.o) +
+            Math.cos(orbDat.p) * Math.cos(orbDat.i) * Math.sin(orbDat.o));
+      const y =
+        array2d[0] *
+          (Math.cos(orbDat.p) * Math.sin(orbDat.o) +
+            Math.sin(orbDat.p) * Math.cos(orbDat.i) * Math.cos(orbDat.o)) +
+        array2d[1] *
+          (Math.cos(orbDat.p) * Math.cos(orbDat.i) * Math.cos(orbDat.o) -
+            Math.sin(orbDat.p) * Math.sin(orbDat.o));
+      const z =
+        array2d[0] * (Math.sin(orbDat.p) * Math.sin(orbDat.i)) +
+        array2d[1] * (Math.cos(orbDat.p) * Math.sin(orbDat.i));
+      return [x, y, z];
+    }
   };
 
   const XYZNewOrbDatCalc = (orbDat?: Orbital_Data) => {
@@ -151,20 +185,39 @@ function OrbitPlot({
     }
   };
 
-  const XYZNewPointCalc = (date: number, orbDat?: Orbital_Data) => {
+  // const XYZNewPointCalc = (date: number, orbDat?: Orbital_Data) => {
+  //   if (orbDat) {
+  //     const rxAndRadRemainingArr = calcPerifocalPositionAtDate(orbDat, date);
+  //     const ellipsePoint2d = calc2DxyEllipsePoint(
+  //       rxAndRadRemainingArr[0],
+  //       rxAndRadRemainingArr[1],
+  //       orbDat
+  //     );
+  //     const coordinatePoint = calc3DEllipseFrom2D(ellipsePoint2d, orbDat);
+  //     if (coordinatePoint) {
+  //       return {
+  //         x: coordinatePoint[0],
+  //         y: coordinatePoint[1],
+  //         z: coordinatePoint[2]
+  //       };
+  //     }
+  //   }
+  // };
+
+  const XYZNewPointCalc2 = (date: number, orbDat: Orbital_Data) => {
     if (orbDat) {
-      const rxAndRadRemainingArr = calcPerifocalPositionAtDate(orbDat, date);
-      const ellipsePoint2d = calc2DxyEllipsePoint(
-        rxAndRadRemainingArr[0],
-        rxAndRadRemainingArr[1],
-        orbDat
-      );
+      const Mx = calcAdjMeanAnomaly(date, orbDat);
+      const v = calcTrueAnomaly(Mx, orbDat);
+      const rx = calcPerifocalPositionAtDate2(v, orbDat);
+      const ellipsePoint2d = calc2DxyEllipsePoint2(rx, v);
       const coordinatePoint = calc3DEllipseFrom2D(ellipsePoint2d, orbDat);
-      return {
-        x: coordinatePoint[0],
-        y: coordinatePoint[1],
-        z: coordinatePoint[2]
-      };
+      if (coordinatePoint) {
+        return {
+          x: coordinatePoint[0],
+          y: coordinatePoint[1],
+          z: coordinatePoint[2]
+        };
+      }
     }
   };
 
@@ -178,22 +231,6 @@ function OrbitPlot({
   //       break;
   //     default:
   //       break;
-  //   }
-  // };
-  // const calcAdjMeanAnomaly = (
-  //   Tx: number | undefined,
-  //   orbDat?: Orbital_Data
-  // ) => {
-  //   if (orbDat && Tx) {
-  //     const Mx = (2 * Math.PI * (Tx - t)) / (orbDat?.T * 24 * 60 * 60 * 1000);
-  //     return Mx;
-  //   }
-  // };
-  // const calcTrueAnomaly = (Mx: number | undefined, orbDat?: Orbital_Data) => {
-  //   if (Mx && orbDat) {
-  //     // Mx = Mx * degToRad;
-  //     const v = Mx + 2 * orbDat?.e * Math.sin(Mx);
-  //     return v;
   //   }
   // };
 
@@ -329,7 +366,7 @@ function OrbitPlot({
           (planetData.planets[0].orbit = mercuryTraceData)
         ]
       });
-      const mercuryXYZ = XYZNewPointCalc(
+      const mercuryXYZ = XYZNewPointCalc2(
         requestedOrbitTime,
         planetData.planets[0]
       );
@@ -349,7 +386,7 @@ function OrbitPlot({
           (planetData.planets[1].orbit = venusTraceData)
         ]
       });
-      const venusXYZ = XYZNewPointCalc(
+      const venusXYZ = XYZNewPointCalc2(
         requestedOrbitTime,
         planetData.planets[1]
       );
@@ -369,7 +406,7 @@ function OrbitPlot({
           (planetData.planets[2].orbit = earthTraceData)
         ]
       });
-      const earthXYZ = XYZNewPointCalc(
+      const earthXYZ = XYZNewPointCalc2(
         requestedOrbitTime,
         planetData.planets[2]
       );
@@ -389,7 +426,7 @@ function OrbitPlot({
           (planetData.planets[3].orbit = marsTraceData)
         ]
       });
-      const marsXYZ = XYZNewPointCalc(
+      const marsXYZ = XYZNewPointCalc2(
         requestedOrbitTime,
         planetData.planets[3]
       );
@@ -413,7 +450,7 @@ function OrbitPlot({
     );
     if (isLoaded1) {
       console.log("Arrived at NEO");
-      const NEOXYZ = XYZNewPointCalc(
+      const NEOXYZ = XYZNewPointCalc2(
         requestedOrbitTime,
         orbitingBodyArr[0].orbitalData
       );
@@ -433,7 +470,7 @@ function OrbitPlot({
   // Earth Coordinate
   useEffect(() => {
     if (planetData.display.mercury == true) {
-      const mercuryXYZ = XYZNewPointCalc(
+      const mercuryXYZ = XYZNewPointCalc2(
         requestedOrbitTime,
         planetData.planets[0]
       );
@@ -445,7 +482,7 @@ function OrbitPlot({
       }
     }
     if (planetData.display.venus == true) {
-      const venusXYZ = XYZNewPointCalc(
+      const venusXYZ = XYZNewPointCalc2(
         requestedOrbitTime,
         planetData.planets[1]
       );
@@ -457,7 +494,7 @@ function OrbitPlot({
       }
     }
     if (planetData.display.earth == true) {
-      const earthXYZ = XYZNewPointCalc(
+      const earthXYZ = XYZNewPointCalc2(
         requestedOrbitTime,
         planetData.planets[2]
       );
@@ -469,7 +506,7 @@ function OrbitPlot({
       }
     }
     if (planetData.display.mars == true) {
-      const marsXYZ = XYZNewPointCalc(
+      const marsXYZ = XYZNewPointCalc2(
         requestedOrbitTime,
         planetData.planets[3]
       );
@@ -623,7 +660,7 @@ function OrbitPlot({
       {isLoaded2 ? (
         <div
           id="plot-container"
-          className="absolute right-0 md:right-6 bottom-6 top-20 md:top-14 w-full md:w-2/3"
+          className="absolute right-0 bottom-2 top-20 md:top-14 w-full"
         >
           <Plot
             divId="mainPlot"

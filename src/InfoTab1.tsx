@@ -70,21 +70,14 @@ function InfoTab1({
       <div className="static w-1/2 h-full">
         <div
           id="infoTab1"
-          className="fixed top-15 left-0 md:left-15 pb-3 z-12 border-2 rounded-md md:w-2/5 w-full bg-green-600 transition-all duration-1000"
+          className="move-off-X fixed top-15 left-0 md:left-15 pb-2 pr-6 z-12 border-2 rounded-md md:w-2/5 w-full bg-green-600 transition-all duration-1000"
         >
-          <div className="absolute right-0 h-full w-1/10 bg-green-800 rounded-r-sm inset-ring-2 inset-ring-green-900">
-            {/* <h1 className="absolute font-bold text-2xl bottom-25 md:top-20 rotate-90 w-50 transform -left-19">
-              Object Selector
-            </h1> */}
-          </div>
+          <div className="absolute right-0 h-full w-1/12 bg-green-800 rounded-r-sm inset-ring-2 inset-ring-green-900 md:max-w-10"></div>
           {API_NEO_List ? null : <div className="loadingDiv">Loading...</div>}
           {API_NEO_List ? (
             <>
-              <div
-                className="relative flex flex-row m-2 border-2 box-border rounded-sm bg-white font-bold justify-self-start
-              ]"
-              >
-                <h3 className="m-auto p-2 bg-green-700 shadow-2xl">
+              <div className="relative flex flex-row m-2 border-2 box-border rounded-sm bg-white font-bold justify-self-start">
+                <h3 className="m-auto bg-green-700 shadow-2xl px-1">
                   NEO Approach Date:
                 </h3>
                 <input
@@ -99,7 +92,7 @@ function InfoTab1({
                   onClick={() => {
                     handleClickDropDown();
                   }}
-                  className="border-soli border-2 bg-white px-5 rounded cursor-pointer font-bold w-[200px] ml-2 flex justify-between shadow-sm"
+                  className="border-2 bg-white px-5 rounded cursor-pointer font-bold w-[200px] ml-2 flex justify-between shadow-sm"
                 >
                   Objects
                   <FaArrowAltCircleDown size={16} className="self-center" />
@@ -133,88 +126,98 @@ function InfoTab1({
                   })}
                 </div>
                 {orbitingBodyArr[0] ? (
-                  <>
-                    <StatDisplay
-                      title="Name:"
-                      value={String(orbitingBodyArr[0].name)}
-                      type="tab1"
-                    />
+                  <div id="reactiveColumns">
+                    <div id="reactiveCol1">
+                      <StatDisplay
+                        title="Name:"
+                        value={String(orbitingBodyArr[0].name)}
+                        type="tab1"
+                      />
 
-                    <div className="flex flex-row justify-items-start">
-                      {selectedNEO ? (
-                        <div className="inline basis-auto">
+                      <div className="flex flex-row justify-items-start">
+                        {selectedNEO ? (
+                          <div className="inline basis-auto">
+                            <StatDisplay
+                              title="Time:"
+                              value={String(
+                                selectedNEO.close_approach_data[0].close_approach_date_full.substring(
+                                  12,
+                                  18
+                                )
+                              )}
+                              type="tab1"
+                            />
+                          </div>
+                        ) : null}
+                        <div className="inline">
                           <StatDisplay
-                            title="Time:"
-                            value={String(
-                              selectedNEO.close_approach_data[0].close_approach_date_full.substring(
-                                12,
-                                18
-                              )
-                            )}
+                            title="ID:"
+                            value={String(orbitingBodyArr[0].id)}
                             type="tab1"
                           />
                         </div>
-                      ) : null}
-                      <div className="inline">
-                        <StatDisplay
-                          title="ID:"
-                          value={String(orbitingBodyArr[0].id)}
-                          type="tab1"
-                        />
                       </div>
+                      <StatDisplay
+                        title="Diameter (Max):"
+                        value={String(
+                          orbitingBodyArr[0].EstDiameterMax.toFixed(1) + " m"
+                        )}
+                        type="tab1"
+                      />
+
+                      <StatDisplay
+                        title="Diameter (Min):"
+                        value={String(
+                          orbitingBodyArr[0].EstDiameterMin.toFixed(1) + " m"
+                        )}
+                        type="tab1"
+                      />
+
+                      <StatDisplay
+                        title="Period:"
+                        value={String(
+                          orbitingBodyArr[0].orbitalPeriod.toFixed(2) + " days"
+                        )}
+                        type="tab1"
+                      />
                     </div>
-                    <StatDisplay
-                      title="Diameter (Max):"
-                      value={String(
-                        orbitingBodyArr[0].EstDiameterMax.toFixed(1) + " m"
-                      )}
-                      type="tab1"
-                    />
-                    <StatDisplay
-                      title="Diameter (Min):"
-                      value={String(
-                        orbitingBodyArr[0].EstDiameterMin.toFixed(1) + " m"
-                      )}
-                      type="tab1"
-                    />
-                    <StatDisplay
-                      title="Period:"
-                      value={String(
-                        orbitingBodyArr[0].orbitalPeriod.toFixed(2) + " days"
-                      )}
-                      type="tab1"
-                    />
-                    <StatDisplay
-                      title="Relative Speed:"
-                      value={String(
-                        orbitingBodyArr[0].closeApproachRelSpeed.toFixed(1) +
-                          " km/s"
-                      )}
-                      type="tab1"
-                    />
-                    <StatDisplay
-                      title="Hazard:"
-                      value={String(orbitingBodyArr[0].hazard)}
-                      type="tab1"
-                    />
-                    <StatDisplay
-                      title="First Observed:"
-                      value={String(orbitingBodyArr[0].firstObservation)}
-                      type="tab1"
-                    />
-                    <StatDisplay
-                      title="Orbit Established:"
-                      value={String(
-                        orbitingBodyArr[0].orbitalData.date
-                      ).substring(0, 11)}
-                      type="tab1"
-                    />
-                  </>
+                    <div id="reactiveCol2">
+                      <StatDisplay
+                        title="Relative Speed:"
+                        value={String(
+                          orbitingBodyArr[0].closeApproachRelSpeed.toFixed(1) +
+                            " km/s"
+                        )}
+                        type="tab1"
+                      />
+                      <StatDisplay
+                        title="Hazard:"
+                        value={String(orbitingBodyArr[0].hazard)}
+                        type="tab1"
+                      />
+
+                      <StatDisplay
+                        title="First Observed:"
+                        value={String(orbitingBodyArr[0].firstObservation)}
+                        type="tab1"
+                      />
+                      {/* </div>
+                    <div> */}
+                      <StatDisplay
+                        title="Orbit Established:"
+                        value={String(
+                          orbitingBodyArr[0].orbitalData.date
+                        ).substring(0, 11)}
+                        type="tab1"
+                      />
+                    </div>
+                  </div>
                 ) : null}
               </div>
             </>
           ) : null}
         </div>
+        -
       </div>
     </>
   );

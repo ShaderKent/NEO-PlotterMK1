@@ -60,33 +60,38 @@ function TimeShifter({
     <div className="static">
       <div
         id="timeShifter"
-        className="absolute bottom-12 left-15 md:w-1/4 h-5 md:h-1/8 border-2 rounded-md transition-all duration-1000 z-10 bg-gray-200"
+        className="pl-3 pb-2 fixed bottom-[-5px] left-[-5px] w-[105vw] md:left-15 md:bottom-[-10px] md:w-2/5 h-22 border-2 rounded-md transition-all duration-1000 z-10 bg-gray-300"
       >
         {requestedOrbitTime ? (
-          <>
-            <div className="flex flex-row ml-3">
-              <StatDisplay
-                title="Date: "
-                value={formatTime(requestedOrbitTime + unixEpoch).substring(
-                  0,
-                  10
-                )}
-                type="tab3"
-              />
-              <StatDisplay
-                title="Time: "
-                value={formatTime(requestedOrbitTime + unixEpoch).substring(
-                  11,
-                  16
-                )}
-                type="tab3"
-              />
+          <div>
+            <div className="flex flex-row justify-evenly ml-[-25px]">
+              <div className="w-45">
+                <StatDisplay
+                  title="Date: "
+                  value={formatTime(requestedOrbitTime + unixEpoch).substring(
+                    0,
+                    10
+                  )}
+                  type="timeShifter"
+                />
+              </div>
+              <div>
+                <StatDisplay
+                  title="Time: "
+                  value={formatTime(requestedOrbitTime + unixEpoch).substring(
+                    11,
+                    16
+                  )}
+                  type="timeShifter"
+                />
+              </div>
             </div>
-          </>
+          </div>
         ) : null}
-        <div className="flex w-9/10 justify-around ml-6">
-          <div className="border-2 flex my-2">
+        <div className="flex justify-around">
+          <div className="border-2 flex my-2 rounded shadow-2xl bg-orange-200">
             <div
+              className="w-7 ml-2"
               onClick={() => {
                 handleClick("-week");
               }}
@@ -94,6 +99,7 @@ function TimeShifter({
               <MdOutlineKeyboardDoubleArrowLeft size={20} />
             </div>
             <div
+              className="w-7"
               onClick={() => {
                 handleClick("-day");
               }}
@@ -101,6 +107,7 @@ function TimeShifter({
               <MdOutlineKeyboardArrowLeft size={20} />
             </div>
             <div
+              className="w-7"
               onClick={() => {
                 handleClick("+day");
               }}
@@ -108,6 +115,7 @@ function TimeShifter({
               <MdOutlineKeyboardArrowRight size={20} />
             </div>
             <div
+              className="w-7"
               onClick={() => {
                 handleClick("+week");
               }}
@@ -116,8 +124,9 @@ function TimeShifter({
             </div>
           </div>
 
-          <div className="border-2 flex flex-row my-2">
+          <div className="border-2 flex flex-row my-2 bg-orange-200 rounded shadow-2xl">
             <div
+              className="w-7 ml-2"
               onClick={() => {
                 handleClick("-hour");
               }}
@@ -125,6 +134,7 @@ function TimeShifter({
               <MdOutlineKeyboardDoubleArrowLeft size={20} />
             </div>
             <div
+              className="w-7"
               onClick={() => {
                 handleClick("-minute");
               }}
@@ -132,6 +142,7 @@ function TimeShifter({
               <MdOutlineKeyboardArrowLeft size={20} />
             </div>
             <div
+              className="w-7"
               onClick={() => {
                 handleClick("+minute");
               }}
@@ -139,6 +150,7 @@ function TimeShifter({
               <MdOutlineKeyboardArrowRight size={20} />
             </div>
             <div
+              className="w-7"
               onClick={() => {
                 handleClick("+hour");
               }}
