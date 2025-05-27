@@ -6,6 +6,8 @@ interface InfoTab2Props {
 }
 
 function InfoTab3({ orbitingBodyArr }: InfoTab2Props) {
+  const t = 2451545; //January 1, 4713 BC ending on Jan 1 2000 at 12:00pm in days
+
   return (
     <>
       <div className="static w-1/3 h-full">
@@ -51,11 +53,12 @@ function InfoTab3({ orbitingBodyArr }: InfoTab2Props) {
                 type="tab2"
               />
               <StatDisplay
-                title="perihelion passage"
+                title="Perihelion Date"
                 value={
                   (
                     orbitingBodyArr[0].orbitalData.date /
-                    (24 * 60 * 60 * 1000)
+                      (24 * 60 * 60 * 1000) +
+                    t
                   ).toFixed(4) + " J.D."
                 }
                 type="tab2"
