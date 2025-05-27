@@ -1,6 +1,11 @@
-import { useLayoutEffect, useState } from "react";
-import { BsPlus, BsFillLightningFill, BsGearFill } from "react-icons/bs";
-import { FaFire, FaPoo } from "react-icons/fa";
+import {
+  BiAlarmExclamation,
+  BiAnalyse,
+  BiAtom,
+  BiSolidAddToQueue,
+  BiSolidAlarm
+} from "react-icons/bi";
+import { BsGearFill } from "react-icons/bs";
 
 interface SideBarIconsProps {
   id?: string;
@@ -9,266 +14,96 @@ interface SideBarIconsProps {
 }
 // dark: bg - gray - 900;
 const SideBar = () => {
-  const isWindowSmall = window.innerWidth < 768;
   const tab1 = document.querySelector("#infoTab1");
   const tab2 = document.querySelector("#infoTab2");
   const tab3 = document.querySelector("#infoTab3");
   const tab4 = document.querySelector("#infoTab4");
   const timeShifter = document.querySelector("#timeShifter");
 
-  //Custom hook to force a rerender on window size change
-  //    This makes sure that the menus function correctly at any size
-  const [windowSize, setWindowSize] = useState([0, 0]);
-  useLayoutEffect(() => {
-    function updateWindowSize() {
-      setWindowSize([window.innerWidth, window.innerHeight]);
-    }
-    window.addEventListener("resize", updateWindowSize);
-    console.log("windowsize change: ", windowSize);
-    updateWindowSize();
-    return () => window.removeEventListener("resize", updateWindowSize);
-  }, []);
-
-  //Resets the menus when called (minimizes and sets them for small or large)
-  const handleResize = () => {
-    if (isWindowSmall) {
-      tab1?.classList.remove("move-off-X");
-      tab2?.classList.remove("move-off-X");
-      tab3?.classList.remove("move-off-X");
-      tab4?.classList.remove("move-off-X");
-
-      tab1?.classList.add("move-off-Y");
-      tab2?.classList.add("move-off-Y");
-      tab3?.classList.add("move-off-Y");
-      tab4?.classList.add("move-off-Y");
-    } else {
-      tab1?.classList.remove("move-off-Y");
-      tab2?.classList.remove("move-off-Y");
-      tab3?.classList.remove("move-off-Y");
-      tab4?.classList.remove("move-off-Y");
-
-      tab1?.classList.add("move-off-X");
-      tab2?.classList.add("move-off-X");
-      tab3?.classList.add("move-off-X");
-      tab4?.classList.add("move-off-X");
-    }
-  };
-
-  //Handles calling the above method on a resize event
-  window.addEventListener("load", handleResize); //hides tabs initially, need to rework
-  window.addEventListener("resize", handleResize);
-
   const handleClick = (onClickValue: string) => {
+    //Handles display of InfoTab1 and hiding other tabs when visible
     if (onClickValue == "tab1" && tab1) {
-      //Handles visibility for InfoTab1
-      if (isWindowSmall) {
-        tab1.classList.toggle("move-off-Y");
-      } else {
-        tab1.classList.toggle("move-off-X");
-      }
-      //Handles hiding InfoTab2 if InfoTab1 is visible
+      tab1.classList.toggle("move-off-X");
       if (
         tab2?.className.includes("move-off-X") != true &&
-        tab1?.className.includes("move-off-X") != true &&
-        !isWindowSmall
+        tab1?.className.includes("move-off-X") != true // &&
       ) {
         tab2?.classList.toggle("move-off-X");
       }
       if (
-        tab2?.className.includes("move-off-Y") != true &&
-        tab1?.className.includes("move-off-Y") != true &&
-        isWindowSmall
-      ) {
-        tab2?.classList.toggle("move-off-Y");
-      }
-      //Handles hiding InfoTab3 if InfoTab1 is visible
-      if (
         tab3?.className.includes("move-off-X") != true &&
-        tab1?.className.includes("move-off-X") != true &&
-        !isWindowSmall
+        tab1?.className.includes("move-off-X") != true
       ) {
         tab3?.classList.toggle("move-off-X");
       }
       if (
-        tab3?.className.includes("move-off-Y") != true &&
-        tab1?.className.includes("move-off-Y") != true &&
-        isWindowSmall
-      ) {
-        tab3?.classList.toggle("move-off-Y");
-      }
-      //Handles hiding InfoTab4 if InfoTab1 is visible
-      if (
         tab4?.className.includes("move-off-X") != true &&
-        tab1?.className.includes("move-off-X") != true &&
-        !isWindowSmall
+        tab1?.className.includes("move-off-X") != true
       ) {
         tab4?.classList.toggle("move-off-X");
-      }
-      if (
-        tab4?.className.includes("move-off-Y") != true &&
-        tab1?.className.includes("move-off-Y") != true &&
-        isWindowSmall
-      ) {
-        tab4?.classList.toggle("move-off-Y");
       }
     } else if (onClickValue == "tab2" && tab2) {
-      //Handles visibility for InfoTab2
-      if (isWindowSmall) {
-        //Changes to a vertical slide on smaller devices
-        tab2.classList.toggle("move-off-Y");
-      } else {
-        tab2.classList.toggle("move-off-X");
-      }
-      // Handles hiding InfoTab1 if InfoTab2 is visible
+      //Handles display of InfoTab2 and hiding other tabs when visible
+      tab2.classList.toggle("move-off-X");
       if (
         tab1?.className.includes("move-off-X") != true &&
-        tab2?.className.includes("move-off-X") != true &&
-        !isWindowSmall
+        tab2?.className.includes("move-off-X") != true
       ) {
         tab1?.classList.toggle("move-off-X");
       }
       if (
-        tab1?.className.includes("move-off-Y") != true &&
-        tab2?.className.includes("move-off-Y") != true &&
-        isWindowSmall
-      ) {
-        tab1?.classList.toggle("move-off-Y");
-      }
-      //Handles hiding InfoTab3 if InfoTab2 is visible
-      if (
         tab3?.className.includes("move-off-X") != true &&
-        tab2?.className.includes("move-off-X") != true &&
-        !isWindowSmall
+        tab2?.className.includes("move-off-X") != true
       ) {
         tab3?.classList.toggle("move-off-X");
       }
       if (
-        tab3?.className.includes("move-off-Y") != true &&
-        tab2?.className.includes("move-off-Y") != true &&
-        isWindowSmall
-      ) {
-        tab3?.classList.toggle("move-off-Y");
-      }
-      //Handles hiding InfoTab4 if InfoTab2 is visible
-      if (
         tab4?.className.includes("move-off-X") != true &&
-        tab2?.className.includes("move-off-X") != true &&
-        !isWindowSmall
+        tab2?.className.includes("move-off-X") != true
       ) {
         tab4?.classList.toggle("move-off-X");
-      }
-      if (
-        tab4?.className.includes("move-off-Y") != true &&
-        tab2?.className.includes("move-off-Y") != true &&
-        isWindowSmall
-      ) {
-        tab4?.classList.toggle("move-off-Y");
       }
     } else if (onClickValue == "tab3" && tab3) {
-      //Handles visibility for InfoTab3 - if tab3 is clicked
-      if (isWindowSmall) {
-        //Changes to a vertical slide on smaller devices
-        tab3.classList.toggle("move-off-Y");
-      } else {
-        tab3.classList.toggle("move-off-X");
-      }
-      // Handles hiding InfoTab1 if InfoTab3 is visible
+      //Handles display of InfoTab3 and hiding other tabs when visible
+      tab3.classList.toggle("move-off-X");
       if (
         tab1?.className.includes("move-off-X") != true &&
-        tab3?.className.includes("move-off-X") != true &&
-        !isWindowSmall
+        tab3?.className.includes("move-off-X") != true
       ) {
         tab1?.classList.toggle("move-off-X");
       }
       if (
-        tab1?.className.includes("move-off-Y") != true &&
-        tab3?.className.includes("move-off-Y") != true &&
-        isWindowSmall
-      ) {
-        tab1?.classList.toggle("move-off-Y");
-      }
-      //Handles hiding InfoTab2 if InfoTab3 is visible
-      if (
         tab2?.className.includes("move-off-X") != true &&
-        tab3?.className.includes("move-off-X") != true &&
-        !isWindowSmall
+        tab3?.className.includes("move-off-X") != true
       ) {
         tab2?.classList.toggle("move-off-X");
       }
       if (
-        tab2?.className.includes("move-off-Y") != true &&
-        tab3?.className.includes("move-off-Y") != true &&
-        isWindowSmall
-      ) {
-        tab2?.classList.toggle("move-off-Y");
-      }
-      //Handles hiding InfoTab4 if InfoTab3 is visible
-      if (
         tab4?.className.includes("move-off-X") != true &&
-        tab3?.className.includes("move-off-X") != true &&
-        !isWindowSmall
+        tab3?.className.includes("move-off-X") != true
       ) {
         tab4?.classList.toggle("move-off-X");
       }
-      if (
-        tab4?.className.includes("move-off-Y") != true &&
-        tab3?.className.includes("move-off-Y") != true &&
-        isWindowSmall
-      ) {
-        tab4?.classList.toggle("move-off-Y");
-      }
     } else if (onClickValue == "tab4" && tab4) {
-      //Handles visibility for InfoTab4 - if tab4 is clicked
-      if (isWindowSmall) {
-        //Changes to a vertical slide on smaller devices
-        tab4.classList.toggle("move-off-Y");
-      } else {
-        tab4.classList.toggle("move-off-X");
-      }
-      // Handles hiding InfoTab1 if InfoTab4 is visible
+      //Handles display of InfoTab4 and hiding other tabs when visible
+      tab4.classList.toggle("move-off-X");
       if (
         tab1?.className.includes("move-off-X") != true &&
-        tab4?.className.includes("move-off-X") != true &&
-        !isWindowSmall
+        tab4?.className.includes("move-off-X") != true
       ) {
         tab1?.classList.toggle("move-off-X");
       }
       if (
-        tab1?.className.includes("move-off-Y") != true &&
-        tab4?.className.includes("move-off-Y") != true &&
-        isWindowSmall
-      ) {
-        tab1?.classList.toggle("move-off-Y");
-      }
-      //Handles hiding InfoTab2 if InfoTab4 is visible
-      if (
         tab2?.className.includes("move-off-X") != true &&
-        tab4?.className.includes("move-off-X") != true &&
-        !isWindowSmall
+        tab4?.className.includes("move-off-X") != true
       ) {
         tab2?.classList.toggle("move-off-X");
       }
       if (
-        tab2?.className.includes("move-off-Y") != true &&
-        tab4?.className.includes("move-off-Y") != true &&
-        isWindowSmall
-      ) {
-        tab2?.classList.toggle("move-off-Y");
-      }
-      //Handles hiding InfoTab3 if InfoTab4 is visible
-      if (
         tab3?.className.includes("move-off-X") != true &&
-        tab4?.className.includes("move-off-X") != true &&
-        !isWindowSmall
+        tab4?.className.includes("move-off-X") != true
       ) {
         tab3?.classList.toggle("move-off-X");
-      }
-      if (
-        tab3?.className.includes("move-off-Y") != true &&
-        tab4?.className.includes("move-off-Y") != true &&
-        isWindowSmall
-      ) {
-        tab3?.classList.toggle("move-off-Y");
       }
     }
 
@@ -284,32 +119,33 @@ const SideBar = () => {
       className="fixed top-0 left-0 w-screen h-16 md:h-screen md:w-16 z-20 flex flex-row md:flex-col
                   bg-gray-900  shadow-lg"
     >
-      <SideBarIcon icon={<FaFire size="28" />} onClickMethod={null} />
+      <SideBarIcon icon={<BiAtom size="40" />} onClickMethod={null} />
       <Divider />
       <SideBarIcon
         id="SBI_1"
-        icon={<BsPlus size="32" />}
+        icon={<BiSolidAddToQueue size="32" />}
         onClickMethod={() => handleClick("tab1")}
       />
       <SideBarIcon
         id="SBI_2"
-        icon={<BsFillLightningFill size="20" />}
+        icon={<BiAnalyse size="32" />}
         onClickMethod={() => handleClick("tab2")}
       />
       <SideBarIcon
         id="SBI_3"
-        icon={<FaPoo size="20" />}
+        icon={<BiAlarmExclamation size="38" />}
         onClickMethod={() => handleClick("tab3")}
       />
       <Divider />
       <SideBarIcon
         id="SBI_4"
-        icon={<BsGearFill size="22" />}
-        onClickMethod={() => handleClick("tab4")}
+        icon={<BiSolidAlarm size="38" />}
+        onClickMethod={() => handleClick("timeShifter")}
       />
       <SideBarIcon
-        icon={<FaPoo size="20" />}
-        onClickMethod={() => handleClick("timeShifter")}
+        id="SBI_5"
+        icon={<BsGearFill size="32" />}
+        onClickMethod={() => handleClick("tab4")}
       />
     </div>
   );
@@ -324,7 +160,6 @@ const SideBarIcon = ({ id, icon, onClickMethod }: SideBarIconsProps) => (
     }}
   >
     {icon}
-    {/* <span className="sidebar-tooltip group-hover:scale-100">{text}</span> */}
   </div>
 );
 

@@ -11,12 +11,12 @@ function InfoTab3({ orbitingBodyArr }: InfoTab2Props) {
       <div className="static w-1/3 h-full">
         <div
           id="infoTab2"
-          className="fixed left-0 md:left-15 top-15 md:top-19 pb-3 w-full md:w-2/5 z-11 border-2 rounded-md bg-cyan-600 transition-all duration-1000"
+          className="move-off-X fixed left-0 md:left-15 top-15 md:top-19 pb-2 w-full md:w-3/7 z-11 border-2 rounded-md bg-cyan-600 transition-all duration-1000"
         >
-          <div className="absolute right-0 h-full w-1/10 bg-cyan-800 rounded-r-sm inset-ring-2 inset-ring-cyan-900"></div>
+          <div className="absolute right-0 h-full w-1/12 bg-cyan-800 rounded-r-sm inset-ring-2 inset-ring-cyan-900"></div>
 
           {orbitingBodyArr[0] ? (
-            <>
+            <div className="mr-2">
               <StatDisplay
                 title="Mean Anomaly (M)"
                 value={
@@ -53,12 +53,14 @@ function InfoTab3({ orbitingBodyArr }: InfoTab2Props) {
               <StatDisplay
                 title="perihelion passage"
                 value={
-                  orbitingBodyArr[0].orbitalData.date / (24 * 60 * 60 * 1000) +
-                  " J.D."
+                  (
+                    orbitingBodyArr[0].orbitalData.date /
+                    (24 * 60 * 60 * 1000)
+                  ).toFixed(4) + " J.D."
                 }
                 type="tab2"
               />
-            </>
+            </div>
           ) : null}
         </div>
       </div>
