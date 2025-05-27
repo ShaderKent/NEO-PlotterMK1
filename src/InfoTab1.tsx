@@ -201,15 +201,6 @@ function InfoTab1({
                         value={String(orbitingBodyArr[0].firstObservation)}
                         type="tab1"
                       />
-                      {/* </div>
-                    <div> */}
-                      <StatDisplay
-                        title="Orbit Established:"
-                        value={String(
-                          orbitingBodyArr[0].orbitalData.date
-                        ).substring(0, 11)}
-                        type="tab1"
-                      />
                     </div>
                   </div>
                 ) : null}
