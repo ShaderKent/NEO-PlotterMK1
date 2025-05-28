@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import Plot from "react-plotly.js";
 import type { Orbital_Data, OrbitingBody, PlanetDisplay } from "./types";
+import LoadingSpinner from "./LoadingSpinner";
 
 // TODO Add Redux to final project
 //  X   Add plotly
@@ -654,9 +655,17 @@ function OrbitPlot({
     setTraceArr(tempTraceArray);
   }, [planetData.display, requestedOrbitTime]);
 
+  console.log("Isloaded2: ", isLoaded2);
+
   return (
     <div className="bg-gray-900 static">
-      {isLoaded2 ? null : <p>Loading...</p>}
+      {isLoaded2 ? null : (
+        <div id="loadingBox" className="absolute">
+          <p className="m-auto">
+            <LoadingSpinner />
+          </p>
+        </div>
+      )}
       {isLoaded2 ? (
         <div
           id="plot-container"

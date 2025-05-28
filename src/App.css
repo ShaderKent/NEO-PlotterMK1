@@ -22,27 +22,15 @@
   color: oklch(62.7% 0.194 149.214);
   @apply hover:text-white hover:bg-green-600
 }
-.SBI_1_On_Click {
-  background-color: green;
-}
 
 #SBI_2 {
   color: oklch(60.9% 0.126 221.723);
   @apply hover:text-white hover:bg-cyan-600
 }
-
-.SBI_2_On_Click {
-  background-color: oklch(60.9% 0.126 221.723);
-}
-
 #SBI_3 {
   color: oklch(45.2% 0.211 324.591);
   @apply text-fuchsia-800 hover:text-white hover:bg-fuchsia-800
 }
-.SBI_3_On_Click {
-  background-color: oklch(45.2% 0.211 324.591);
-}
-
 #SBI_4 {
   @apply text-orange-700
 }
@@ -60,28 +48,53 @@
   }
 }
 
-/* @media (orientation: portrait) {
+#loadingBox {
+  @apply top-[35vh] left-[25vw] md:top-[40vh] md:left-[45vw]
+}
+#loadingIcon{
+  @apply w-[50vw] h-[50vw] max-w-[200px] max-h-[200px] 
+}
 
-  #infoTab1,
-  #infoTab2,
-  #infoTab3,
-  #infoTab4 {
-    transform: translate(-500px, 0px)
+.rotate {
+  animation: spinner 1.5s linear infinite;
+}
+.colorSpin {
+  color: var(--color-teal-300);
+  animation: colorSpin 3s linear infinite;
+  
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
   }
-} */
+}
 
-/* @media (orientation: landscape) {
-
-  #infoTab1,
-  #infoTab2,
-  #infoTab3,
-  #infoTab4 {
-    transform: translate(0px, -500px)
+@keyframes colorSpin {
+  0% {
+    color: var(--color-teal-300);
   }
-} */
+  
+  25% {
+    color: var(--color-green-500);
+  }
+  
+  50% {
+    color: var(--color-purple-500); 
+  }
+  
+  75% {
+   color: var(--color-blue-700); 
+  }
+}
+
 
 /* @media (orientation: landscape) and (max-height: 300px){ */
 @media (max-aspect-ratio: 7/3) and (max-height: 450px){
+  #loadingBox{
+    @apply top-[24vh] left-[40vw]
+  }
+
   #infoTab1 {
     @apply w-8/10 justify-between;
   }
