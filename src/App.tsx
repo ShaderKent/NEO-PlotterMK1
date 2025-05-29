@@ -18,24 +18,32 @@ import type {
 } from "./types";
 import planetStaticData from "./planetData";
 import InfoTab4 from "./InfoTab4";
+// import ExplainTab from "./ExplainTab";
 
 function App() {
   const today = new Date();
-  const todayUTC = Date.parse(today.toISOString()); //Date today since UTC Epoch (J1 1970)
-  const unixEpoch = 946684800 * 1000; //Seconds from J1 1970 TO J1 2000
-  const todayAdjustedToJ2000 = todayUTC - unixEpoch; //Convert todays date to J2000 format (seconds)
+  //Date today since UTC Epoch (J1 1970)
+  const todayUTC = Date.parse(today.toISOString());
+  //Seconds from J1 1970 TO J1 2000
+  const unixEpoch = 946684800 * 1000;
+  //Convert todays date to J2000 format (seconds)
+  const todayAdjustedToJ2000 = todayUTC - unixEpoch;
   const degToRad = Math.PI / 180;
-  const t = 2451545 * (24 * 60 * 60 * 1000); //January 1, 4713 BC ending on Jan 1 2000 at 12:00pm in seconds
+  //January 1, 4713 BC ending on Jan 1 2000 at 12:00pm in seconds
+  const t = 2451545 * (24 * 60 * 60 * 1000);
 
   // State management
 
   //API Request/Data Management
-  const [isLoaded1, setIsLoaded1] = useState<Boolean>(false); //Handles the timing of trace calculations until the API Fetch
-  const [isLoaded2, setIsLoaded2] = useState<Boolean>(false); //Handles display of Plot, waits till data has been calculated
+  //Handles the timing of trace calculations until the API Fetch
+  const [isLoaded1, setIsLoaded1] = useState<Boolean>(false);
+  //Handles display of Plot, waits till data has been calculated
+  const [isLoaded2, setIsLoaded2] = useState<Boolean>(false);
   const [API_Request_Date, setAPI_Request_Date] = useState<string>(
     today.toISOString().substring(0, 10)
   );
-  const [API_Request_Id, setAPI_Request_Id] = useState<number>(3542517); //3542517
+  //3542517 Random number to prevent 0 error
+  const [API_Request_Id, setAPI_Request_Id] = useState<number>(3542517);
   const [API_NEO_List, setAPI_NEO_List] = useState<API_Response_List_Data[]>(
     []
   );
@@ -57,10 +65,6 @@ function App() {
     },
     planets: planetStaticData
   });
-
-  //API call
-  //`https://api.nasa.gov/neo/rest/v1/feed?start_date=${START_DATE}&end_date=${END_DATE}&api_key=YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj`
-  //https://api.nasa.gov/neo/rest/v1/neo/3542517?api_key=YJK8aZ88VJ3LvbCoC9swoyw3aHI4a0cSpcldpxgj
 
   //Adds 1 day to the selectedDate (adjusting for Month/Year)
   const getSelectedDateEnd = (date: string) => {
@@ -199,6 +203,7 @@ function App() {
     <div className="w-screen h-screen">
       <TitleBar />
       <SideBar />
+      {/* <ExplainTab /> */}
       <InfoTab1
         API_NEO_List={API_NEO_List}
         setAPI_Request_Id={setAPI_Request_Id}

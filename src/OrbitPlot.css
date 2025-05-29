@@ -1,6 +1,0 @@
-@import "tailwindcss";
-
-#plotHolder {
-    border: red 1px solid;
-    width: 850px;
-}

@@ -98,14 +98,28 @@ export interface OrbitingBody {
 }  
 
 export interface Orbital_Data {
-    date: number; //Date of perigee in epoch time (subtract j2000 to get usableT)
-    M: number; //Mean Anomaly => How far around the orbit the object currently is in degrees. 0 at perihelion, 180 at aphelion
-    e: number; //Eccentricity => How 'pointy' the orbit is: 0 = circular, < 1 = Elliptical, > 1 == Parabolic, > 1 = Hyperbolic
-    a: number; //Length of the semi major axis (1/2 the distance between the periapsis and apoapsis)
-    o: number; //'Omega'(Capital) or ascending node longitude => Angle at the point where the orbit ascending passes through the horizontal plane of the earth and sun, in deg (counterclockwise)
-    i: number; //Inclination => // angle (deg) between the plane of the orbit and the reference plane > 0-90deg normal direction orbit > 90-180deg retrograde orbits
-    p: number; //'omega'(lowecase) or perihelion argument => The angle between the ascending node and the periapsis (lowest point of orbit)
+    //Date of perigee in epoch time (subtract j2000 to get usableT)
+    date: number; 
+    //Mean Anomaly => How far around the orbit the object currently is in degrees.
+    //  0 at perihelion, 180 at aphelion
+    M: number; 
+    //Eccentricity => How 'pointy' the orbit is: 0 = circular, 
+    // < 1 = Elliptical, > 1 == Parabolic, > 1 = Hyperbolic
+    e: number; 
+    a: number; 
+    //Length of the semi major axis (1/2 the distance between the periapsis and apoapsis)
+    o: number; 
+    //'Omega'(Capital) or ascending node longitude => Angle at the point where the orbit
+    // ascending passes through the horizontal plane of the earth and sun, 
+    // in deg (counterclockwise)
+    i: number; 
+    //Inclination => // angle (deg) between the plane of the orbit and the reference plane 
+    // > 0-90deg normal direction orbit > 90-180deg retrograde orbits
+    p: number; 
+    //'omega'(lowecase) or perihelion argument => The angle between the ascending node 
+    // and the periapsis (lowest point of orbit)
     T: number;
+    //Stored trace data once generated.
     orbit?: OrbitXYZ;
 }
 
