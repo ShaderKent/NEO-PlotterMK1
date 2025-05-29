@@ -288,7 +288,7 @@ function OrbitPlot({
     z: orbitingBodyArr[0]?.orbitalData.orbit?.z,
     type: "scatter3d",
     mode: "lines",
-    marker: { color: "blue" },
+    marker: { color: "red" },
     line: { shape: "spline", width: 2, dash: "solid" }
   };
   const NEOMarker = {
@@ -299,7 +299,7 @@ function OrbitPlot({
     text: "NEO",
     type: "scatter3d",
     mode: "markers",
-    marker: { color: "blue", size: 3 }
+    marker: { color: "red", size: 3 }
   };
   const mercuryTrace = {
     x: planetData.planets[0]?.orbit?.x,
@@ -364,7 +364,7 @@ function OrbitPlot({
     z: planetData.planets[3]?.orbit?.z,
     type: "scatter3d",
     mode: "lines",
-    marker: { color: "red" },
+    marker: { color: "blue" },
     line: { shape: "spline", width: 2, dash: "solid" }
   };
   const marsMarker = {
@@ -375,7 +375,7 @@ function OrbitPlot({
     text: "Mars",
     type: "scatter3d",
     mode: "markers",
-    marker: { color: "red", size: 5 }
+    marker: { color: "blue", size: 5 }
   };
   const sunMarker = {
     x: [0],
