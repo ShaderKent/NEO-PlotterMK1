@@ -48,8 +48,14 @@ body {
     transform: translate(-1000px, 0px);
   }
 }
+#titleBackgroundBox{
+  overflow-x: clip;
 
-
+}
+#titleBackgroundBar {
+  right: -20px;
+  top: -5px;
+}
 #loadingBox {
   @apply top-[35vh] left-[25vw] md:top-[40vh] md:left-[45vw]
 }
