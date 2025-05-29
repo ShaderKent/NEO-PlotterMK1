@@ -208,7 +208,6 @@ function InfoTab1({
             </>
           ) : null}
         </div>
-        -
       </div>
     </>
   );

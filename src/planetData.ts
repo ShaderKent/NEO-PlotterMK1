@@ -1,11 +1,13 @@
 import type { Orbital_Data } from "./types";
 const degToRad = Math.PI / 180;
-const t = 2451545 * (24 * 60 * 60 * 1000); //January 1, 4713 BC ending on Jan 1 2000 at 12:00pm in seconds
+//January 1, 4713 BC ending on Jan 1 2000 at 12:00pm in seconds
+const t = 2451545 * (24 * 60 * 60 * 1000); 
 
 
 
 const mercuryStaticData: Orbital_Data = {
-    date: (2460915.0159722 * (24 * 60 * 60 * 1000)) - t, //J2000 = Number of milliseconds since January 1, 4713 BC ending on Jan 1 2000 at 12:00pm
+  //J2000 = Number of milliseconds since January 1, 4713 BC ending on Jan 1 2000 at 12:00pm
+    date: (2460915.0159722 * (24 * 60 * 60 * 1000)) - t, 
     M: 252.25084,
     e: 0.20563069,
     a: 0.38709893,

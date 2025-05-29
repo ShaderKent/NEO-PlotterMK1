@@ -14,6 +14,7 @@ interface SideBarIconsProps {
 }
 // dark: bg - gray - 900;
 const SideBar = () => {
+  const explainTab = document.querySelector("#explainTab");
   const tab1 = document.querySelector("#infoTab1");
   const tab2 = document.querySelector("#infoTab2");
   const tab3 = document.querySelector("#infoTab3");
@@ -42,6 +43,12 @@ const SideBar = () => {
       ) {
         tab4?.classList.toggle("move-off-X");
       }
+      if (
+        explainTab?.className.includes("move-off-X") != true &&
+        tab1?.className.includes("move-off-X") != true
+      ) {
+        explainTab?.classList.toggle("move-off-X");
+      }
     } else if (onClickValue == "tab2" && tab2) {
       //Handles display of InfoTab2 and hiding other tabs when visible
       tab2.classList.toggle("move-off-X");
@@ -62,6 +69,12 @@ const SideBar = () => {
         tab2?.className.includes("move-off-X") != true
       ) {
         tab4?.classList.toggle("move-off-X");
+      }
+      if (
+        explainTab?.className.includes("move-off-X") != true &&
+        tab2?.className.includes("move-off-X") != true
+      ) {
+        explainTab?.classList.toggle("move-off-X");
       }
     } else if (onClickValue == "tab3" && tab3) {
       //Handles display of InfoTab3 and hiding other tabs when visible
@@ -84,6 +97,12 @@ const SideBar = () => {
       ) {
         tab4?.classList.toggle("move-off-X");
       }
+      if (
+        explainTab?.className.includes("move-off-X") != true &&
+        tab3?.className.includes("move-off-X") != true
+      ) {
+        explainTab?.classList.toggle("move-off-X");
+      }
     } else if (onClickValue == "tab4" && tab4) {
       //Handles display of InfoTab4 and hiding other tabs when visible
       tab4.classList.toggle("move-off-X");
@@ -105,6 +124,40 @@ const SideBar = () => {
       ) {
         tab3?.classList.toggle("move-off-X");
       }
+      if (
+        explainTab?.className.includes("move-off-X") != true &&
+        tab4?.className.includes("move-off-X") != true
+      ) {
+        explainTab?.classList.toggle("move-off-X");
+      }
+    } else if (onClickValue == "explainTab" && explainTab) {
+      //Handles display of explainTab and hiding other tabs when visible
+      //Currently Disabled
+      explainTab.classList.toggle("move-off-X");
+      if (
+        tab1?.className.includes("move-off-X") != true &&
+        explainTab?.className.includes("move-off-X") != true
+      ) {
+        tab1?.classList.toggle("move-off-X");
+      }
+      if (
+        tab2?.className.includes("move-off-X") != true &&
+        explainTab?.className.includes("move-off-X") != true
+      ) {
+        tab2?.classList.toggle("move-off-X");
+      }
+      if (
+        tab3?.className.includes("move-off-X") != true &&
+        explainTab?.className.includes("move-off-X") != true
+      ) {
+        tab3?.classList.toggle("move-off-X");
+      }
+      if (
+        tab4?.className.includes("move-off-X") != true &&
+        explainTab?.className.includes("move-off-X") != true
+      ) {
+        tab4?.classList.toggle("move-off-X");
+      }
     }
 
     //Handles visibility for the time shifter
@@ -119,7 +172,10 @@ const SideBar = () => {
       className="fixed top-0 left-0 w-screen h-16 md:h-screen md:w-16 z-20 flex flex-row md:flex-col
                   bg-gray-900  shadow-lg"
     >
-      <SideBarIcon icon={<BiAtom size="40" />} onClickMethod={null} />
+      <SideBarIcon
+        icon={<BiAtom size="40" />}
+        onClickMethod={() => handleClick("explainTab")}
+      />
       <Divider />
       <SideBarIcon
         id="SBI_1"

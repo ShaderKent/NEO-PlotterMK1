@@ -8,6 +8,10 @@
   overflow: hidden
 }
 
+body {
+  @apply bg-gray-800;
+}
+
 @layer components {
 .sidebar-icon {
   @apply relative flex items-center justify-center h-12 w-12 mt-2 mb-2 mx-auto bg-gray-200 dark:bg-gray-800 hover:rounded-xl rounded-3xl transition-all duration-300 ease-linear cursor-pointer shadow-lg;
@@ -36,10 +40,7 @@
 }
 
 .move-off-X{
-  transform: translate(-500px, 0px);
-}
-.move-off-Y{
-  transform: translate(0px, -500px);
+  transform: translate(-750px, 0px);
 }
 
 @media screen and (min-width: 1200px) {
@@ -47,6 +48,7 @@
     transform: translate(-1000px, 0px);
   }
 }
+
 
 #loadingBox {
   @apply top-[35vh] left-[25vw] md:top-[40vh] md:left-[45vw]
@@ -89,7 +91,6 @@
 }
 
 
-/* @media (orientation: landscape) and (max-height: 300px){ */
 @media (max-aspect-ratio: 7/3) and (max-height: 450px){
   #loadingBox{
     @apply top-[24vh] left-[40vw]
@@ -117,13 +118,6 @@
   }
 }
 
-
-.move-right20px-up5px {
-  transform: translate(20px, -5px)
-}
-.move-down10px {
-  transform: translate(0, 10px)
-}
 .parallelogram {
   width: 75%;
   height: 55px;
