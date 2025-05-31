@@ -1,0 +1,131 @@
+@import 'tailwindcss';
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  text-align: center;
+  overflow: hidden
+}
+
+body {
+  @apply bg-gray-800;
+}
+
+@layer components {
+.sidebar-icon {
+  @apply relative flex items-center justify-center h-12 w-12 mt-2 mb-2 mx-auto bg-gray-200 dark:bg-gray-800 hover:rounded-xl rounded-3xl transition-all duration-300 ease-linear cursor-pointer shadow-lg;
+}
+
+.sidebar-hr {
+  @apply bg-gray-200 dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-full invisible md:visible md:mx-2;
+}
+}
+
+#SBI_1 {
+  color: oklch(62.7% 0.194 149.214);
+  @apply hover:text-white hover:bg-green-600
+}
+
+#SBI_2 {
+  color: oklch(60.9% 0.126 221.723);
+  @apply hover:text-white hover:bg-cyan-600
+}
+#SBI_3 {
+  color: oklch(45.2% 0.211 324.591);
+  @apply text-fuchsia-800 hover:text-white hover:bg-fuchsia-800
+}
+#SBI_4 {
+  @apply text-orange-700
+}
+
+.move-off-X{
+  transform: translate(-750px, 0px);
+}
+
+@media screen and (min-width: 1200px) {
+  .move-off-X {
+    transform: translate(-1000px, 0px);
+  }
+}
+#titleBackgroundBox{
+  overflow-x: clip;
+
+}
+#titleBackgroundBar {
+  right: -20px;
+  top: -5px;
+}
+#loadingBox {
+  @apply top-[35vh] left-[25vw] md:top-[40vh] md:left-[45vw]
+}
+#loadingIcon{
+  @apply w-[50vw] h-[50vw] max-w-[200px] max-h-[200px] 
+}
+
+.rotate {
+  animation: spinner 1.5s linear infinite;
+}
+.colorSpin {
+  color: var(--color-teal-300);
+  animation: colorSpin 3s linear infinite;
+  
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes colorSpin {
+  0% {
+    color: var(--color-teal-300);
+  }
+  
+  25% {
+    color: var(--color-green-500);
+  }
+  
+  50% {
+    color: var(--color-purple-500); 
+  }
+  
+  75% {
+   color: var(--color-blue-700); 
+  }
+}
+
+
+@media (max-aspect-ratio: 7/3) and (max-height: 450px){
+  #loadingBox{
+    @apply top-[24vh] left-[40vw]
+  }
+
+  #infoTab1 {
+    @apply w-8/10 justify-between;
+  }
+  #reactiveColumns{
+    @apply flex flex-row pr-2
+  }
+  #reactiveCol1, #reactiveCol2{
+    @apply w-1/2
+  }
+
+  #infoTab4{
+    @apply top-26
+  }
+
+  #timeShifter{
+    @apply left-15 bottom-0 h-18
+  }
+  .move-off-X {
+    transform: translate(-1000px, 0px);
+  }
+}
+
+.parallelogram {
+  width: 75%;
+  height: 55px;
+  transform: skew(30deg);
+}
